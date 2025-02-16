@@ -1,25 +1,43 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
 import { colors } from "@/constraints/token";
 import { TextInput } from "react-native-gesture-handler";
+import { Feather } from "@expo/vector-icons";
+
 type inputProps = {
   name: string;
   type: "password" | "text";
 };
+
 const Input = ({ name, type }: inputProps) => {
-  let password = false;
-  if (type === "password") {
-    password = true;
-  }
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const isPassword = type === "password";
+
   return (
     <View style={styles.border}>
-      <View>
+      <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder={name}
-          secureTextEntry={password}
+          secureTextEntry={isPassword && !isPasswordVisible}
           placeholderTextColor={colors.textMuted}
-        ></TextInput>
+        />
+        {isPassword && (
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={togglePasswordVisibility}
+          >
+            <Feather
+              name={isPasswordVisible ? "eye-off" : "eye"}
+              size={24}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -38,9 +56,20 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.3,
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   input: {
     width: 312,
     height: 48,
     paddingLeft: 16,
+    paddingRight: 50,
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 12,
+    height: 48,
+    justifyContent: "center",
   },
 });

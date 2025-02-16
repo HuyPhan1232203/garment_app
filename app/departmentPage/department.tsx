@@ -10,7 +10,6 @@ const departmentPage = () => {
       const res = await axios.get(
         "https://api-xuongmay-dev.lighttail.com/api/department?pageIndex=1&pageSize=10"
       );
-      console.log(res.data.data.items);
     } catch {
       console.log("fetch error");
     }
