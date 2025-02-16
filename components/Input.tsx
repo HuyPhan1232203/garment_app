@@ -7,9 +7,11 @@ import { Feather } from "@expo/vector-icons";
 type inputProps = {
   name: string;
   type: "password" | "text";
+  value: string;
+  onChangeText: (text: string) => void;
 };
 
-const Input = ({ name, type }: inputProps) => {
+const Input = ({ name, type, value, onChangeText }: inputProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
@@ -23,8 +25,10 @@ const Input = ({ name, type }: inputProps) => {
         <TextInput
           style={styles.input}
           placeholder={name}
+          value={value}
           secureTextEntry={isPassword && !isPasswordVisible}
           placeholderTextColor={colors.textMuted}
+          onChangeText={onChangeText}
         />
         {isPassword && (
           <TouchableOpacity
