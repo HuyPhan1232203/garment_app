@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function loginPage() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function loginPage() {
     console.log(account + password);
   };
   return (
-    <View
+    <SafeAreaView
       style={[
         defaultStyles.container,
         { alignItems: "center", paddingHorizontal: screenPadding.horizontal },
@@ -62,7 +63,7 @@ export default function loginPage() {
           Đăng Nhập
         </Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,11 +1,15 @@
 import { Stack } from "expo-router";
+import { SafeAreaView } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView>
-      <RootNavigation />
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView>
+        <RootNavigation />
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 const RootNavigation = () => (
