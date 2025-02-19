@@ -1,16 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { Header } from '@/components/Header'
+import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import BlankPage from "@/components/BlankPage";
 
 const task = () => {
-  return (
-    <View>
-        <Header text='cc'/>
-      <Text>task</Text>
-    </View>
-  )
-}
+  return <BlankPage headerTitle="Sản xuất - Tổ" />;
+};
 
-export default task
+export default task;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

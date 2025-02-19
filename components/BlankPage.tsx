@@ -4,20 +4,22 @@ import axios from "axios";
 import { defaultStyles } from "@/styles/default";
 import { Header } from "./Header";
 type pageProps = {
-  api: string;
+  api?: string;
   headerTitle: string;
 };
 const BlankPage = ({ api, headerTitle }: pageProps) => {
-  const fetchData = async () => {
-    try {
-      const res = await axios.get(api);
-    } catch {
-      console.log("fetch error");
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
+  if (api) {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(api);
+      } catch {
+        console.log("fetch error");
+      }
+    };
+    useEffect(() => {
+      fetchData();
+    }, []);
+  }
   return (
     <View style={defaultStyles.container}>
       <View>
