@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Platform } from "react-native";
 import React, { useState } from "react";
 import { colors } from "@/constraints/token";
 import { TextInput } from "react-native-gesture-handler";
@@ -59,6 +59,8 @@ const styles = StyleSheet.create({
     },
     shadowColor: "#000",
     shadowOpacity: 0.3,
+    shadowRadius: 4.65, // Added for iOS
+    elevation: 7, // Added for Android
   },
   inputContainer: {
     flexDirection: "row",
