@@ -11,19 +11,12 @@ const departmentPage = () => {
         api="https://api-xuongmay-dev.lighttail.com/api/department?pageIndex=1&pageSize=10"
         headerTitle="Sản xuất - Danh sách tổ"
       />
-      <View>
-        <Text
-          onPress={() => {
-            router.navigate("/taskPage/task");
-          }}
-        >
-          Chuyển trang
-        </Text>
-      </View>
+      <TouchableOpacity onPress={() => router.navigate("/taskPage/task")}>
+        <Text>Chuyển trang</Text>
+      </TouchableOpacity>
     </View>
   );
 };
-
 export default departmentPage;
 
 const styles = StyleSheet.create({});

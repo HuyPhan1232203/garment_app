@@ -1,11 +1,20 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import BlankPage from "@/components/BlankPage";
+import { useRouter } from "expo-router";
 
-const task = () => {
-  return <BlankPage headerTitle="Sản xuất - Tổ" />;
+const Task = () => {
+  const router = useRouter();
+  return (
+    <View>
+      <BlankPage headerTitle="Sản xuất - Tổ" />
+      <TouchableOpacity onPress={() => router.navigate("/QCPage/QCRole")}>
+        <Text>Chuyển trang</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
-export default task;
+export default Task;
 
 const styles = StyleSheet.create({});
