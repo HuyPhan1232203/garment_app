@@ -3,11 +3,11 @@ import { colors, fontSize, screenPadding } from "@/constraints/token";
 import { defaultStyles } from "@/styles/default";
 import { useRouter } from "expo-router";
 import { useState, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser } from '../slices/authSlice';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUser } from "../slices/authSlice";
 
 export default function loginPage() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function loginPage() {
 
   const handleLogin = () => {
     // dispatch(fetchUser({ account, password }));
-    router.navigate('/departmentPage/department')
+    router.navigate("/departmentPage/department");
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function loginPage() {
       ]}
     >
       <View style={styles.logoImgContainer}>
-        <FastImage
+        <Image
           source={require("../assets/images/Logo.png")}
           style={styles.logoImg}
           resizeMode="contain"
@@ -66,15 +66,12 @@ export default function loginPage() {
         />
       </View>
       <View style={styles.buttonContainer}>
-        <Text
-          style={styles.btn}
-          onPress={handleLogin}
-        >
+        <Text style={styles.btn} onPress={handleLogin}>
           Đăng Nhập
         </Text>
       </View>
-      {status === 'loading' && <Text>Loading...</Text>}
-      {status === 'failed' && <Text>Error: {error}</Text>}
+      {status === "loading" && <Text>Loading...</Text>}
+      {status === "failed" && <Text>Error: {error}</Text>}
     </SafeAreaView>
   );
 }
