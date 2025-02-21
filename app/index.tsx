@@ -2,18 +2,31 @@ import Input from "@/components/Input";
 import { colors, fontSize, screenPadding } from "@/constraints/token";
 import { defaultStyles } from "@/styles/default";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUser } from '../slices/authSlice';
 
 export default function loginPage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
+  const { user, status, error } = useSelector((state: any) => state.auth);
+
   const handleLogin = () => {
-    console.log(account + password);
+    // dispatch(fetchUser({ account, password }));
+    router.navigate('/departmentPage/department')
   };
+
+  useEffect(() => {
+    if (user) {
+      router.navigate("/departmentPage/department");
+    }
+  }, [user]);
+
   return (
     <SafeAreaView
       style={[
@@ -55,14 +68,13 @@ export default function loginPage() {
       <View style={styles.buttonContainer}>
         <Text
           style={styles.btn}
-          onPress={() => {
-            handleLogin();
-            router.navigate("/departmentPage/department");
-          }}
+          onPress={handleLogin}
         >
           Đăng Nhập
         </Text>
       </View>
+      {status === 'loading' && <Text>Loading...</Text>}
+      {status === 'failed' && <Text>Error: {error}</Text>}
     </SafeAreaView>
   );
 }
