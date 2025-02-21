@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   detailQuantContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "##009DFF80",
+    backgroundColor: "#009DFF80",
     paddingVertical: 18,
     paddingHorizontal: 15,
     borderRadius: 10,
