@@ -12,6 +12,7 @@ const BlankPage = ({ api, headerTitle }: pageProps) => {
     const fetchData = async () => {
       try {
         const res = await axios.get(api);
+        console.log(res.data);
       } catch {
         console.log("fetch error");
       }
