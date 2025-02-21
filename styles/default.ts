@@ -20,6 +20,13 @@ export const defaultStyles = StyleSheet.create({
     color: colors.headerText,
     fontWeight: 500,
   },
+  modal: {
+    backgroundColor: "#009DFF80",
+    marginVertical: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
 });
 export const utilsStyles = StyleSheet.create({
   itemSeparator: {

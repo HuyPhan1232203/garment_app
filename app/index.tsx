@@ -4,10 +4,8 @@ import { defaultStyles } from "@/styles/default";
 import { useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUser } from "../slices/authSlice";
 
 export default function loginPage() {
   const router = useRouter();
