@@ -5,7 +5,6 @@ import { useRouter } from "expo-router";
 import { defaultStyles } from "@/styles/default";
 
 const departmentPage = () => {
-  const router = useRouter();
   return (
     <View style={defaultStyles.container}>
       <BlankPage

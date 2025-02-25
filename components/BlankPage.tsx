@@ -42,7 +42,7 @@ const BlankPage = ({ api, headerTitle }: PageProps) => {
         style={{
           flexDirection: "column",
           alignItems: "center",
-          marginTop: 40,
+          height: "90%",
         }}
       >
         <FlatList
@@ -71,7 +71,7 @@ const BlankPage = ({ api, headerTitle }: PageProps) => {
               >
                 {item?.code} - {item?.name}
               </Text>
-              <Text style={{ fontSize: 20 }}>Tổng SL: {item?.quantity}</Text>
+              <Text style={{ fontSize: 20 }}>Tổng SL: {item?.numOfStaff}</Text>
             </TouchableOpacity>
           )}
         />
