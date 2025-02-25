@@ -14,9 +14,9 @@ const Task = () => {
   const fetchTask = async () => {
     try {
       const res = await axios.get(
-        "https://67b8b3ac699a8a7baef4fde6.mockapi.io/task"
+        "https://api-xuongmay-dev.lighttail.com/api/taskproduct?pageIndex=1&pageSize=10"
       );
-      setTask(res.data);
+      setTask(res.data.data.items);
     } catch {
       console.log("fetch task error");
     }

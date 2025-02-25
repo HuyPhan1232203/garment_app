@@ -26,8 +26,7 @@ const BlankPage = ({ api, headerTitle }: PageProps) => {
     const fetchData = async () => {
       try {
         const res = await axios.get(api);
-        console.log(res.data);
-        setData(res.data);
+        setData(res.data.data.items);
       } catch (error) {
         console.error("Fetch error:", error);
       }

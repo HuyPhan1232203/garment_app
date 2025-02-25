@@ -9,7 +9,7 @@ const departmentPage = () => {
   return (
     <View style={defaultStyles.container}>
       <BlankPage
-        api="https://67b8b3ac699a8a7baef4fde6.mockapi.io/departmentAPI"
+        api="https://api-xuongmay-dev.lighttail.com/api/department?pageIndex=1&pageSize=10"
         headerTitle="Sản xuất - Danh sách tổ"
       />
     </View>
