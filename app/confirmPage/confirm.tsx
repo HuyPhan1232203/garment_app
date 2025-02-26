@@ -19,7 +19,7 @@ const confirm = () => {
   const param = useLocalSearchParams();
   const finished = useSelector((store) => store.taskDetail.quantity);
   const target = useSelector((store) => store.task.target);
-  const data = useRef();
+  const data = useRef(0);
   return (
     <View style={defaultStyles.container}>
       <Header text={`${code}-${name}-${param.task}`} isChild={true} />
