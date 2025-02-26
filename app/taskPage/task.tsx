@@ -19,7 +19,7 @@ const Task = () => {
       );
       setTask(res.data.data.items);
     } catch {
-      console.log("fetch task error");
+      console.error("fetch task error");
     }
   };
   useEffect(() => {
@@ -34,7 +34,7 @@ const Task = () => {
   };
   return (
     <View style={defaultStyles.container}>
-      <Header text={`Sản xuất - ${param.name}`} />
+      <Header text={`Sản xuất - ${param.name}`} isChild={true} />
       <View
         style={{
           alignItems: "center",
@@ -54,8 +54,8 @@ const Task = () => {
                 }}
                 onPress={() => {
                   router.push({
-                    pathname: "/operationPage/operation",
-                    params: { id: item.id },
+                    pathname: "/taskDetailPage/taskDetail",
+                    params: { id: item.id, code: item?.code, name: item?.name },
                   });
                 }}
               >

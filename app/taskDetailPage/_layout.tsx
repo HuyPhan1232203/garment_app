@@ -8,7 +8,7 @@ const _layout = () => {
   return (
     <SafeAreaView style={defaultStyles.container}>
       <Stack>
-        <Stack.Screen name="operation" options={{ headerShown: false }} />
+        <Stack.Screen name="taskDetail" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaView>
   );
