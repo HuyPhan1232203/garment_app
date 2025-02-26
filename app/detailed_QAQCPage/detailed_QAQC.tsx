@@ -4,23 +4,25 @@ import { defaultStyles } from "@/styles/default";
 import { Header } from "@/components/Header";
 import { AntDesign, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
+import ModalQuantityGood from "@/components/ModalQuantityGood";
 
 const detailed_QAQC = () => {
   const params = useLocalSearchParams();
   const [qaDetail, setQaDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchQaDetail = async () => {
       try {
         console.log("Fetching QA detail for ID:", params.id);
         const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`);
-        
+
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`);
         }
-        
+
         const result = await response.json();
         console.log("API Response:", result);
         setQaDetail(result.data);
@@ -58,7 +60,7 @@ const detailed_QAQC = () => {
   }
 
   // Create a header text that combines name and code
-  const headerText = qaDetail?.name && qaDetail?.code 
+  const headerText = qaDetail?.name && qaDetail?.code
     ? `${qaDetail.name} - ${qaDetail.code}`
     : "Chi tiết QA";
 
@@ -87,6 +89,12 @@ const detailed_QAQC = () => {
               {qaDetail?.quantityGood || 0}
             </Text>
           </View>
+
+          <ModalQuantityGood
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+          />
+
           <View style={styles.detailQuant}>
             <Text style={defaultStyles.text}>Số lượng lỗi</Text>
             <Text
@@ -99,7 +107,7 @@ const detailed_QAQC = () => {
             </Text>
           </View>
         </View>
-        
+
         {/* Task info */}
         {/* <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
@@ -168,6 +176,7 @@ const detailed_QAQC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.feature, { backgroundColor: "#8979FF" }]}
+            onPress={() => setIsModalVisible(true)}
           >
             <Text style={{ ...defaultStyles.text, color: "#fff" }}>
               Nhập SL đạt
