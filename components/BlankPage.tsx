@@ -54,7 +54,7 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
         style={{
           flexDirection: "column",
           alignItems: "center",
-          height: "90%",
+          height: "90.5%",
         }}
       >
         {data.length !== 0 ? (

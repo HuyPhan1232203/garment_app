@@ -2,14 +2,14 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { defaultStyles } from "@/styles/default";
 import { Stack } from "expo-router";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const _layout = () => {
   return (
     <SafeAreaView style={defaultStyles.container}>
       <Stack>
         <Stack.Screen
-          name="QCRole"
+          name="confirm"
           options={{ headerShown: false }}
         ></Stack.Screen>
       </Stack>

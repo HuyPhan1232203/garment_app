@@ -7,6 +7,8 @@ import { FlatList } from "react-native-gesture-handler";
 import { defaultStyles } from "@/styles/default";
 import Paging from "@/components/Paging";
 import NoData from "@/components/NoData";
+import { useDispatch } from "react-redux";
+import { storeTask } from "@/slices/taskSlice";
 
 const Task = () => {
   const param = useLocalSearchParams();
@@ -32,13 +34,19 @@ const Task = () => {
     if (task.length === 0) return;
     setPageIndex(pageIndex + 1);
   };
+  const dispatch = useDispatch();
   return (
     <View style={defaultStyles.container}>
       <Header text={`Sản xuất - ${param.name}`} isChild={true} />
+      <View style={{ paddingVertical: 30, alignItems: "center" }}>
+        <Text style={{ ...defaultStyles.text, fontWeight: 500 }}>
+          Danh sách công việc
+        </Text>
+      </View>
       <View
         style={{
           alignItems: "center",
-          height: "90%",
+          height: "80%",
         }}
       >
         {task.length !== 0 ? (
@@ -53,6 +61,7 @@ const Task = () => {
                   paddingVertical: 10,
                 }}
                 onPress={() => {
+                  dispatch(storeTask(item));
                   router.push({
                     pathname: "/taskDetailPage/taskDetail",
                     params: { id: item.id, code: item?.code, name: item?.name },
