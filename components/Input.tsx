@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import React, { useState } from "react";
 import { colors } from "@/constraints/token";
 import { TextInput } from "react-native-gesture-handler";
@@ -6,7 +12,7 @@ import { Feather } from "@expo/vector-icons";
 
 type inputProps = {
   name: string;
-  type: "password" | "text";
+  type: "password" | "text" | "number";
   value: string;
   onChangeText: (text: string) => void;
 };
@@ -22,14 +28,29 @@ const Input = ({ name, type, value, onChangeText }: inputProps) => {
   return (
     <View style={styles.border}>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder={name}
-          value={value}
-          secureTextEntry={isPassword && !isPasswordVisible}
-          placeholderTextColor={colors.textMuted}
-          onChangeText={onChangeText}
-        />
+        {type === "number" ? (
+          <TextInput
+            style={styles.input}
+            placeholder={name}
+            value={value}
+            placeholderTextColor={colors.textMuted}
+            onChangeText={(text) => {
+              if (text === "" || /^\d+$/.test(text)) {
+                onChangeText(text);
+              }
+            }}
+            maxLength={4}
+          />
+        ) : (
+          <TextInput
+            style={styles.input}
+            placeholder={name}
+            value={value}
+            secureTextEntry={isPassword && !isPasswordVisible}
+            placeholderTextColor={colors.textMuted}
+            onChangeText={onChangeText}
+          />
+        )}
         {isPassword && (
           <TouchableOpacity
             style={styles.eyeIcon}

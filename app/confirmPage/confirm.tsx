@@ -5,21 +5,39 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { useSelector } from "react-redux";
 import { useLocalSearchParams } from "expo-router";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { defaultStyles } from "@/styles/default";
 import { colors } from "@/constraints/token";
+import Input from "@/components/Input";
+import axios from "axios";
 
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
+  const id = useSelector((store) => store.task.id);
   const code = useSelector((store) => store.task.code);
   const param = useLocalSearchParams();
-  const finished = useSelector((store) => store.taskDetail.quantity);
   const target = useSelector((store) => store.task.target);
-  const data = useRef(0);
+  const [inputValue, setInputValue] = useState(0);
+  const handleRefresh = () => {
+    setInputValue(0);
+  };
+  const [finished, setfinished] = useState(0);
+  const fetchFinished = async () => {
+    const res = await axios.get(
+      `https://api-xuongmay-dev.lighttail.com/api/taskdetail/totalquantity/${id}`
+    );
+    setfinished(res.data.data);
+  };
+  useEffect(() => {
+    fetchFinished();
+  }, []);
+  const handleConfirm = async () => {
+    const res = await axios.put;
+  };
   return (
     <View style={defaultStyles.container}>
       <Header text={`${code}-${name}-${param.task}`} isChild={true} />
@@ -43,17 +61,89 @@ const confirm = () => {
             <Text style={{ ...defaultStyles.text, fontWeight: 500 }}>
               Số lượng:
             </Text>
-            <Text style={{ fontSize: 36, fontWeight: 500 }}>20</Text>
+            <Text style={{ fontSize: 36, fontWeight: 500 }}>{inputValue}</Text>
           </View>
         </View>
         {/*  */}
-        <View>
-          <View style={styles.refresh}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: 319,
+          }}
+        >
+          <TouchableOpacity style={styles.refresh} onPress={handleRefresh}>
             <Entypo name="cw" size={24} color={colors.icon} />
             <Text style={{ ...defaultStyles.text, color: "#fff" }}>
               Đặt lại
             </Text>
-          </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.confirm}>
+            <AntDesign name="check" size={24} color={colors.icon} />
+            <Text style={{ ...defaultStyles.text, color: "#fff" }}>
+              Xác nhận
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {/*  */}
+        <View>
+          <Input
+            name="Nhập số lượng"
+            onChangeText={setInputValue}
+            value={inputValue}
+            type="number"
+          />
+        </View>
+        {/*  */}
+        <View style={styles.allNumberContainer}>
+          <TouchableOpacity
+            style={styles.numberContainer}
+            onPress={() => {
+              setInputValue(5);
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: 500 }}>5</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.numberContainer}
+            onPress={() => {
+              setInputValue(10);
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: 500 }}>10</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.numberContainer}
+            onPress={() => {
+              setInputValue(15);
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: 500 }}>15</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.numberContainer}
+            onPress={() => {
+              setInputValue(20);
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: 500 }}>25</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.numberContainer}
+            onPress={() => {
+              setInputValue(25);
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: 500 }}>25</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.numberContainer}
+            onPress={() => {
+              setInputValue(30);
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: 500 }}>30</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -87,6 +177,36 @@ const styles = StyleSheet.create({
     width: 131,
     justifyContent: "space-around",
     borderRadius: 10,
+  },
+  confirm: {
+    flexDirection: "row",
+    backgroundColor: "#2589FF",
+    padding: 10,
+    width: 131,
+    justifyContent: "space-around",
+    borderRadius: 10,
+  },
+  numberContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 80,
+    height: 80,
+    backgroundColor: "#fff",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65, // Added for iOS
+    elevation: 7, // Added for Android
+  },
+  allNumberContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 30,
+    justifyContent: "center",
+    marginTop: 50,
   },
 });
 
