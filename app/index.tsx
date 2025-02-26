@@ -3,7 +3,7 @@ import { colors, fontSize, screenPadding } from "@/constraints/token";
 import { defaultStyles } from "@/styles/default";
 import { useRouter } from "expo-router";
 import { useState, useEffect } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -17,6 +17,10 @@ export default function loginPage() {
   const handleLogin = () => {
     // dispatch(fetchUser({ account, password }));
     router.navigate("/departmentPage/department");
+  };
+  const handleLoginQA = () => {
+    // dispatch(fetchUser({ account, password }));
+    router.navigate("/QA_Task/QATask");
   };
 
   useEffect(() => {
@@ -68,6 +72,11 @@ export default function loginPage() {
           Đăng Nhập
         </Text>
       </View>
+      <TouchableOpacity style={styles.buttonContainer}>
+        <Text style={styles.btn} onPress={handleLoginQA}>
+          Đăng Nhập QAQC
+        </Text>
+      </TouchableOpacity>
       {status === "loading" && <Text>Loading...</Text>}
       {status === "failed" && <Text>Error: {error}</Text>}
     </SafeAreaView>

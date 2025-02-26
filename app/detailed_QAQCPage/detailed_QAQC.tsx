@@ -1,13 +1,70 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
 import { defaultStyles } from "@/styles/default";
 import { Header } from "@/components/Header";
 import { AntDesign, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 
 const detailed_QAQC = () => {
+  const params = useLocalSearchParams();
+  const [qaDetail, setQaDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchQaDetail = async () => {
+      try {
+        console.log("Fetching QA detail for ID:", params.id);
+        const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`);
+        
+        if (!response.ok) {
+          throw new Error(`API responded with status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log("API Response:", result);
+        setQaDetail(result.data);
+      } catch (err) {
+        console.error("Error fetching QA detail:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchQaDetail();
+    } else {
+      setError("No task ID provided");
+      setLoading(false);
+    }
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <View style={[defaultStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#009DFF" />
+        <Text style={defaultStyles.text}>Đang tải dữ liệu...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[defaultStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={[defaultStyles.text, { color: '#FF0000' }]}>Lỗi: {error}</Text>
+      </View>
+    );
+  }
+
+  // Create a header text that combines name and code
+  const headerText = qaDetail?.name && qaDetail?.code 
+    ? `${qaDetail.name} - ${qaDetail.code}`
+    : "Chi tiết QA";
+
   return (
     <View style={defaultStyles.container}>
-      <Header text="W3- KT Áo" />
+      <Header text={headerText} />
       <View style={{ flexDirection: "column", alignItems: "center", flex: 1 }}>
         {/* quantity */}
         <View style={styles.quantityTextContainer}>
@@ -15,7 +72,7 @@ const detailed_QAQC = () => {
             <Ionicons name="calculator-outline" size={24} color="black" />
             <Text style={styles.quantityText}>Tổng số lượng:</Text>
           </View>
-          <Text style={styles.quantityText}>50</Text>
+          <Text style={styles.quantityText}>{qaDetail?.quantityProduct || 0}</Text>
         </View>
         {/* detail quantity  */}
         <View style={styles.detailQuantContainer}>
@@ -27,7 +84,7 @@ const detailed_QAQC = () => {
                 { color: "#18611E", fontWeight: 600, paddingTop: 15 },
               ]}
             >
-              36
+              {qaDetail?.quantityGood || 0}
             </Text>
           </View>
           <View style={styles.detailQuant}>
@@ -38,10 +95,47 @@ const detailed_QAQC = () => {
                 { color: "#FF0000", fontWeight: 600, paddingTop: 15 },
               ]}
             >
-              14
+              {qaDetail?.quantityBad || 0}
             </Text>
           </View>
         </View>
+        
+        {/* Task info */}
+        {/* <View style={styles.infoContainer}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Mã:</Text>
+            <Text style={styles.infoValue}>{qaDetail?.code || "-"}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Ca:</Text>
+            <Text style={styles.infoValue}>{qaDetail?.shift === "morning" ? "Sáng" : qaDetail?.shift === "afternoon" ? "Chiều" : qaDetail?.shift}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Bắt đầu:</Text>
+            <Text style={styles.infoValue}>
+              {qaDetail?.dateStart ? new Date(qaDetail.dateStart).toLocaleString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }) : "-"}
+            </Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Kết thúc:</Text>
+            <Text style={styles.infoValue}>
+              {qaDetail?.dateEnd ? new Date(qaDetail.dateEnd).toLocaleString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }) : "-"}
+            </Text>
+          </View>
+        </View> */}
+
         {/* feature */}
         <View style={styles.featureContainer}>
           <TouchableOpacity style={styles.feature}>
@@ -156,6 +250,25 @@ const styles = StyleSheet.create({
     ...defaultStyles.text,
     flexDirection: "column",
     alignItems: "center",
+  },
+  infoContainer: {
+    width: 319,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    marginTop: 20,
+    padding: 15,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  infoLabel: {
+    ...defaultStyles.text,
+    fontWeight: "500",
+  },
+  infoValue: {
+    ...defaultStyles.text,
   },
   feature: {
     flexDirection: "row",
