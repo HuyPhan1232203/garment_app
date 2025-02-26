@@ -13,9 +13,10 @@ const Task = () => {
   const [task, setTask] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const fetchTask = async () => {
+    console.log(param);
     try {
       const res = await axios.get(
-        `https://api-xuongmay-dev.lighttail.com/api/taskproduct?pageIndex=${pageIndex}&pageSize=10`
+        `https://api-xuongmay-dev.lighttail.com/api/taskproduct?pageIndex=${pageIndex}&pageSize=10&searchByDepartmentId=${param.id}`
       );
       setTask(res.data.data.items);
     } catch {

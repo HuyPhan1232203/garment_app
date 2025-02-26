@@ -10,14 +10,14 @@ import axios from "axios";
 import { Header } from "./Header";
 import { router } from "expo-router";
 import { defaultStyles } from "@/styles/default";
-import { colors } from "@/constraints/token";
 import Paging from "./Paging";
 import NoData from "./NoData";
 type PageProps = {
   api?: string;
   headerTitle: string;
+  nextPath: string;
 };
-const BlankPage = ({ api, headerTitle }: PageProps) => {
+const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
   const [data, setData] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   useEffect(() => {
@@ -41,6 +41,12 @@ const BlankPage = ({ api, headerTitle }: PageProps) => {
     if (data.length === 0) return;
     setPageIndex(pageIndex + 1);
   };
+  const handlePress = (name, id) => {
+    router.push({
+      pathname: nextPath,
+      params: { name: name, id: id },
+    });
+  };
   return (
     <View>
       <Header text={headerTitle} />
@@ -62,12 +68,7 @@ const BlankPage = ({ api, headerTitle }: PageProps) => {
                   paddingHorizontal: 80,
                   paddingVertical: 20,
                 }}
-                onPress={() => {
-                  router.push({
-                    pathname: "/taskPage/task",
-                    params: { name: item?.name },
-                  });
-                }}
+                onPress={() => handlePress(item?.name, item.id)}
               >
                 <Text
                   style={{
