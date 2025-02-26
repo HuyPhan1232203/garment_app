@@ -2,8 +2,8 @@ import { Stack } from "expo-router";
 import { SafeAreaView } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Provider } from 'react-redux';
-import store from '../store/store';
+import { Provider } from "react-redux";
+import store from "../store/store";
 
 export default function RootLayout() {
   return (
@@ -24,5 +24,6 @@ const RootNavigation = () => (
     <Stack.Screen name="taskPage" options={{ headerShown: false }} />
     <Stack.Screen name="QCPage" options={{ headerShown: false }} />
     <Stack.Screen name="detailed_QAQCPage" options={{ headerShown: false }} />
+    <Stack.Screen name="operationPage" options={{ headerShown: false }} />
   </Stack>
 );

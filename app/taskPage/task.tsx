@@ -13,7 +13,6 @@ const Task = () => {
   const [task, setTask] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const fetchTask = async () => {
-    console.log(param);
     try {
       const res = await axios.get(
         `https://api-xuongmay-dev.lighttail.com/api/taskproduct?pageIndex=${pageIndex}&pageSize=10&searchByDepartmentId=${param.id}`
@@ -54,7 +53,10 @@ const Task = () => {
                   paddingVertical: 10,
                 }}
                 onPress={() => {
-                  router.navigate("/QCPage/QCRole");
+                  router.push({
+                    pathname: "/operationPage/operation",
+                    params: { id: item.id },
+                  });
                 }}
               >
                 <Text
