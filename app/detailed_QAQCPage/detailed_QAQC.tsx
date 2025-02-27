@@ -4,14 +4,163 @@ import { defaultStyles } from "@/styles/default";
 import { Header } from "@/components/Header";
 import { AntDesign, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import ModalQuantityGood from "@/components/ModalQuantityGood";
+import QAModal from "@/components/QAModal";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const detailed_QAQC = () => {
   const params = useLocalSearchParams();
   const [qaDetail, setQaDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalVisibleQG, setModalVisibleQG] = useState(false);
+  const [modalVisibleQB, setModalVisibleQB] = useState(false); // Thêm state này
+
+  const handleSubmitBad = async (value) => {
+    console.log("📌 Người dùng nhập số lượng lỗi:", value);
+    console.log("📌 Đang gửi PUT request với ID:", params.id);
+
+    const quantityBad = Number(value);
+    if (isNaN(quantityBad) || quantityBad < 0) {
+      console.error("❌ Giá trị không hợp lệ!");
+      return;
+    }
+
+    // Kiểm tra quantityBad không vượt quá quantityProduct
+    const totalProduct = qaDetail?.quantityProduct || 0;
+    if (quantityBad > totalProduct) {
+      console.error("❌ Số lượng lỗi không thể lớn hơn tổng số sản phẩm!");
+      return;
+    }
+
+    // Hàm chuẩn hóa định dạng ngày thành YYYY-MM-DD HH:mm
+    const formatDate = (date) => {
+      if (!date) return "2025-07-02 00:00"; // Giá trị mặc định nếu không có
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+      const day = String(d.getDate()).padStart(2, "0");
+      const hours = String(d.getHours()).padStart(2, "0");
+      const minutes = String(d.getMinutes()).padStart(2, "0");
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
+
+    const updatedData = {
+      code: qaDetail?.code || "QAD00004",
+      name: qaDetail?.name || "string",
+      description: qaDetail?.description || "string",
+      quantityGood: qaDetail?.quantityGood || 0,
+      quantityBad: quantityBad,
+      quantityProduct: totalProduct,
+      dateStart: formatDate(qaDetail?.dateStart),
+      dateEnd: formatDate(qaDetail?.dateEnd),
+      qaTaskId: qaDetail?.qaTaskId || params.id,
+      shift: qaDetail?.shift || "string",
+    };
+
+    try {
+      const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "accept": "*/*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      const result = await response.json();
+      console.log("📌 API Response (raw):", result);
+      console.log("📌 Response status:", response.status);
+      console.log("📌 JSON body gửi đi:", JSON.stringify(updatedData, null, 2));
+
+      if (response.ok && result?.statusCode === 200) {
+        console.log("✅ Cập nhật số lượng lỗi thành công:", result.data?.message || "Thành công");
+        setQaDetail((prev) => ({
+          ...prev,
+          quantityBad: quantityBad,
+        }));
+        setModalVisibleQB(false);
+      } else {
+        const errorMsg = result?.ErrorMessage || result?.message || "API không trả về thông tin lỗi rõ ràng";
+        console.error("❌ Lỗi từ API:", errorMsg);
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi gửi request:", error.message);
+    }
+  };
+
+
+  const handleSubmitGood = async (value) => {
+    console.log("📌 Người dùng nhập số lượng đạt:", value);
+    console.log("📌 Đang gửi PUT request với ID:", params.id);
+
+    const quantityGood = Number(value);
+    if (isNaN(quantityGood) || quantityGood < 0) {
+      console.error("❌ Giá trị không hợp lệ!");
+      return;
+    }
+
+    // Kiểm tra quantityGood không vượt quá quantityProduct
+    const totalProduct = qaDetail?.quantityProduct || 0;
+    if (quantityGood > totalProduct) {
+      console.error("❌ Số lượng đạt không thể lớn hơn tổng số sản phẩm!");
+      return;
+    }
+
+    // Hàm chuẩn hóa định dạng ngày thành YYYY-MM-DD HH:mm
+    const formatDate = (date) => {
+      if (!date) return "2025-07-02 00:00"; // Giá trị mặc định nếu không có
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+      const day = String(d.getDate()).padStart(2, "0");
+      const hours = String(d.getHours()).padStart(2, "0");
+      const minutes = String(d.getMinutes()).padStart(2, "0");
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
+
+    const updatedData = {
+      code: qaDetail?.code || "QAD00004",
+      name: qaDetail?.name || "string",
+      description: qaDetail?.description || "string",
+      quantityGood: quantityGood, // Giá trị mới từ input
+      quantityBad: qaDetail?.quantityBad || 0,
+      quantityProduct: totalProduct,
+      dateStart: formatDate(qaDetail?.dateStart),
+      dateEnd: formatDate(qaDetail?.dateEnd),
+      qaTaskId: qaDetail?.qaTaskId || params.id,
+      shift: qaDetail?.shift || "string",
+    };
+
+    try {
+      const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "accept": "*/*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      const result = await response.json();
+      console.log("📌 API Response (raw):", result);
+      console.log("📌 Response status:", response.status);
+      console.log("📌 JSON body gửi đi:", JSON.stringify(updatedData, null, 2));
+
+      if (response.ok && result?.statusCode === 200) {
+        console.log("✅ Cập nhật số lượng đạt thành công:", result.data?.message || "Thành công");
+        setQaDetail((prev) => ({
+          ...prev,
+          quantityGood: quantityGood,
+        }));
+        setModalVisibleQG(false); // Đóng modal số lượng đạt
+      } else {
+        const errorMsg = result?.ErrorMessage || result?.message || "API không trả về thông tin lỗi rõ ràng";
+        console.error("❌ Lỗi từ API:", errorMsg);
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi gửi request:", error.message);
+    }
+  };
 
   useEffect(() => {
     const fetchQaDetail = async () => {
@@ -90,11 +239,6 @@ const detailed_QAQC = () => {
             </Text>
           </View>
 
-          <ModalQuantityGood
-            visible={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
-          />
-
           <View style={styles.detailQuant}>
             <Text style={defaultStyles.text}>Số lượng lỗi</Text>
             <Text
@@ -108,42 +252,6 @@ const detailed_QAQC = () => {
           </View>
         </View>
 
-        {/* Task info */}
-        {/* <View style={styles.infoContainer}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Mã:</Text>
-            <Text style={styles.infoValue}>{qaDetail?.code || "-"}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Ca:</Text>
-            <Text style={styles.infoValue}>{qaDetail?.shift === "morning" ? "Sáng" : qaDetail?.shift === "afternoon" ? "Chiều" : qaDetail?.shift}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Bắt đầu:</Text>
-            <Text style={styles.infoValue}>
-              {qaDetail?.dateStart ? new Date(qaDetail.dateStart).toLocaleString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : "-"}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Kết thúc:</Text>
-            <Text style={styles.infoValue}>
-              {qaDetail?.dateEnd ? new Date(qaDetail.dateEnd).toLocaleString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : "-"}
-            </Text>
-          </View>
-        </View> */}
-
         {/* feature */}
         <View style={styles.featureContainer}>
           <TouchableOpacity style={styles.feature}>
@@ -156,14 +264,27 @@ const detailed_QAQC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.feature, { backgroundColor: "#1C9D1F" }]}
+            onPress={() => setModalVisibleQB(true)}
           >
             <FontAwesome5 name="flag" size={24} color="#fff" />
-            <Text
-              style={{ ...defaultStyles.text, color: "#fff", paddingLeft: 10 }}
-            >
+            <Text style={{ ...defaultStyles.text, color: "#fff", paddingLeft: 10 }}>
               Báo cáo
             </Text>
           </TouchableOpacity>
+          <QAModal
+            visible={modalVisibleQB}
+            onClose={() => setModalVisibleQB(false)}
+            onSubmit={handleSubmitBad}
+            title="Số lượng lỗi"
+            label="Nhập số lượng sản phẩm lỗi"
+            placeholder="Nhập số lượng"
+            keyboardType="numeric"
+            cancelText="Hủy"
+            submitText="Báo cáo"
+            isRequired={true}
+            maxLength={10}
+          />
+
           <TouchableOpacity
             style={[styles.feature, { backgroundColor: "#2589FF" }]}
           >
@@ -176,12 +297,27 @@ const detailed_QAQC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.feature, { backgroundColor: "#8979FF" }]}
-            onPress={() => setIsModalVisible(true)}
+            onPress={() => setModalVisibleQG(true)}
           >
             <Text style={{ ...defaultStyles.text, color: "#fff" }}>
               Nhập SL đạt
             </Text>
           </TouchableOpacity>
+
+          <QAModal
+            visible={modalVisibleQG}
+            onClose={() => setModalVisibleQG(false)}
+            onSubmit={handleSubmitGood}
+            title="Số lượng đạt"
+            label="Nhập số lượng sản phẩm đạt"
+            placeholder="Nhập số lượng"
+            keyboardType="numeric"
+            cancelText="Hủy"
+            submitText="Xác nhận"
+            isRequired={true}
+            maxLength={10}
+          />
+
         </View>
         {/* Choose number */}
         <View style={styles.allnumberContainer}>
