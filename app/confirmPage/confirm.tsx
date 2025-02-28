@@ -25,11 +25,6 @@ const confirm = () => {
   const idTaskDetail = useSelector((store) => store.taskDetail.id);
   const codeTaskDetail = useSelector((store) => store.taskDetail.code);
   const nameTaskDetail = useSelector((store) => store.taskDetail.name);
-  const quantityTaskDetail = useSelector((store) => store.taskDetail.quantity);
-  const dateStartTaskDetail = useSelector(
-    (store) => store.taskDetail.dateStart
-  );
-  const dateEndTaskDetail = useSelector((store) => store.taskDetail.dateEnd);
   const operationIdTaskDetail = useSelector(
     (store) => store.taskDetail.operationId
   );
@@ -54,31 +49,26 @@ const confirm = () => {
     fetchFinished();
   }, []);
   const handleConfirm = async () => {
-    console.log(
-      "code" + `${codeTaskDetail}`,
-      "name" + `${nameTaskDetail}`,
-      "quantity" + quantityTaskDetail,
-      "dateStart" + `${dateStartTaskDetail}`,
-      "dateEnd" + `${dateEndTaskDetail}`,
-      "operationId" + `${operationIdTaskDetail}`,
-      "taskProductId" + `${taskProductIdTaskDetail}`
-    );
+    // console.log(
+    //   "code" + `${codeTaskDetail}`,
+    //   "name" + `${nameTaskDetail}`,
+    //   "quantity" + quantityTaskDetail,
+    //   "operationId" + `${operationIdTaskDetail}`,
+    //   "taskProductId" + `${taskProductIdTaskDetail}`
+    // );
     try {
-      console.log(idTaskDetail);
-      await axios.put(
+      const respone = await axios.put(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail/${idTaskDetail}`,
         {
           code: `${codeTaskDetail}`,
           name: `${nameTaskDetail}`,
           quantity: inputValue,
-          dateStart: `${dateStartTaskDetail}`,
-          dateEnd: `${dateEndTaskDetail}`,
           operationId: `${operationIdTaskDetail}`,
           taskProductId: `${taskProductIdTaskDetail}`,
         }
       );
     } catch {
-      console.error("put error");
+      console.error("put err");
     }
   };
   return (
