@@ -22,21 +22,64 @@ const confirm = () => {
   const param = useLocalSearchParams();
   const target = useSelector((store) => store.task.target);
   const [inputValue, setInputValue] = useState(0);
+  const idTaskDetail = useSelector((store) => store.taskDetail.id);
+  const codeTaskDetail = useSelector((store) => store.taskDetail.code);
+  const nameTaskDetail = useSelector((store) => store.taskDetail.name);
+  const quantityTaskDetail = useSelector((store) => store.taskDetail.quantity);
+  const dateStartTaskDetail = useSelector(
+    (store) => store.taskDetail.dateStart
+  );
+  const dateEndTaskDetail = useSelector((store) => store.taskDetail.dateEnd);
+  const operationIdTaskDetail = useSelector(
+    (store) => store.taskDetail.operationId
+  );
+  const taskProductIdTaskDetail = useSelector(
+    (store) => store.taskDetail.taskProductId
+  );
   const handleRefresh = () => {
     setInputValue(0);
   };
   const [finished, setfinished] = useState(0);
   const fetchFinished = async () => {
-    const res = await axios.get(
-      `https://api-xuongmay-dev.lighttail.com/api/taskdetail/totalquantity/${id}`
-    );
-    setfinished(res.data.data);
+    try {
+      const res = await axios.get(
+        `https://api-xuongmay-dev.lighttail.com/api/taskdetail/totalquantity/${id}`
+      );
+      setfinished(res.data.data);
+    } catch {
+      console.error("fetch finish error");
+    }
   };
   useEffect(() => {
     fetchFinished();
   }, []);
   const handleConfirm = async () => {
-    const res = await axios.put;
+    console.log(
+      "code" + `${codeTaskDetail}`,
+      "name" + `${nameTaskDetail}`,
+      "quantity" + quantityTaskDetail,
+      "dateStart" + `${dateStartTaskDetail}`,
+      "dateEnd" + `${dateEndTaskDetail}`,
+      "operationId" + `${operationIdTaskDetail}`,
+      "taskProductId" + `${taskProductIdTaskDetail}`
+    );
+    try {
+      console.log(idTaskDetail);
+      await axios.put(
+        `https://api-xuongmay-dev.lighttail.com/api/taskdetail/${idTaskDetail}`,
+        {
+          code: `${codeTaskDetail}`,
+          name: `${nameTaskDetail}`,
+          quantity: inputValue,
+          dateStart: `${dateStartTaskDetail}`,
+          dateEnd: `${dateEndTaskDetail}`,
+          operationId: `${operationIdTaskDetail}`,
+          taskProductId: `${taskProductIdTaskDetail}`,
+        }
+      );
+    } catch {
+      console.error("put error");
+    }
   };
   return (
     <View style={defaultStyles.container}>
@@ -78,7 +121,7 @@ const confirm = () => {
               Đặt lại
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.confirm}>
+          <TouchableOpacity style={styles.confirm} onPress={handleConfirm}>
             <AntDesign name="check" size={24} color={colors.icon} />
             <Text style={{ ...defaultStyles.text, color: "#fff" }}>
               Xác nhận
