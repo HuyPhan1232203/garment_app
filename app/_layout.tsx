@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import store from "../store/store";
+import Toast from "react-native-toast-message";
 
 export default function RootLayout() {
   return (
@@ -13,6 +14,7 @@ export default function RootLayout() {
           <RootNavigation />
         </GestureHandlerRootView>
       </SafeAreaProvider>
+      <Toast />
     </Provider>
   );
 }

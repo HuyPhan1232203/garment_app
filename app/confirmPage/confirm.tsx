@@ -14,7 +14,7 @@ import { defaultStyles } from "@/styles/default";
 import { colors } from "@/constraints/token";
 import Input from "@/components/Input";
 import axios from "axios";
-
+import Toast from "react-native-toast-message";
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
   const id = useSelector((store) => store.task.id);
@@ -25,6 +25,10 @@ const confirm = () => {
   const idTaskDetail = useSelector((store) => store.taskDetail.id);
   const codeTaskDetail = useSelector((store) => store.taskDetail.code);
   const nameTaskDetail = useSelector((store) => store.taskDetail.name);
+  const dateStartTaskDetail = useSelector(
+    (store) => store.taskDetail.dateStart
+  );
+  const dateEndTaskDetail = useSelector((store) => store.taskDetail.dateEnd);
   const operationIdTaskDetail = useSelector(
     (store) => store.taskDetail.operationId
   );
@@ -49,26 +53,39 @@ const confirm = () => {
     fetchFinished();
   }, []);
   const handleConfirm = async () => {
-    // console.log(
-    //   "code" + `${codeTaskDetail}`,
-    //   "name" + `${nameTaskDetail}`,
-    //   "quantity" + quantityTaskDetail,
-    //   "operationId" + `${operationIdTaskDetail}`,
-    //   "taskProductId" + `${taskProductIdTaskDetail}`
-    // );
+    console.log({
+      code: `${codeTaskDetail}`,
+      name: `${nameTaskDetail}`,
+      quantity: inputValue,
+      dateStart: `${dateStartTaskDetail}`,
+      dateEnd: `${dateEndTaskDetail}`,
+      operationId: `${operationIdTaskDetail}`,
+      taskProductId: `${taskProductIdTaskDetail}`,
+    });
+    console.log(idTaskDetail);
     try {
-      const respone = await axios.put(
+      await axios.put(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail/${idTaskDetail}`,
         {
           code: `${codeTaskDetail}`,
           name: `${nameTaskDetail}`,
           quantity: inputValue,
+          dateStart: `${dateStartTaskDetail}`,
+          dateEnd: `${dateEndTaskDetail}`,
           operationId: `${operationIdTaskDetail}`,
           taskProductId: `${taskProductIdTaskDetail}`,
         }
       );
+      setInputValue(0);
+      Toast.show({
+        type: "success",
+        text1: "Updated Successfully",
+      });
     } catch {
-      console.error("put err");
+      Toast.show({
+        type: "error",
+        text1: "Updated Error",
+      });
     }
   };
   return (
@@ -128,54 +145,43 @@ const confirm = () => {
           />
         </View>
         {/*  */}
-        <View style={styles.allNumberContainer}>
+        <View
+          style={{
+            flexDirection: "row",
+            width: 319,
+            justifyContent: "space-between",
+            marginTop: 80,
+          }}
+        >
           <TouchableOpacity
-            style={styles.numberContainer}
+            style={{
+              backgroundColor: colors.primary,
+              width: 130,
+              height: 105,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 10,
+            }}
             onPress={() => {
-              setInputValue(5);
+              if (inputValue > 0) {
+                setInputValue(Number(inputValue) - 1);
+              }
             }}
           >
-            <Text style={{ fontSize: 20, fontWeight: 500 }}>5</Text>
+            <AntDesign name="minus" size={100} color={colors.icon} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.numberContainer}
-            onPress={() => {
-              setInputValue(10);
+            style={{
+              backgroundColor: colors.primary,
+              width: 130,
+              height: 105,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 10,
             }}
+            onPress={() => setInputValue(Number(inputValue) + 1)}
           >
-            <Text style={{ fontSize: 20, fontWeight: 500 }}>10</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.numberContainer}
-            onPress={() => {
-              setInputValue(15);
-            }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: 500 }}>15</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.numberContainer}
-            onPress={() => {
-              setInputValue(20);
-            }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: 500 }}>25</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.numberContainer}
-            onPress={() => {
-              setInputValue(25);
-            }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: 500 }}>25</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.numberContainer}
-            onPress={() => {
-              setInputValue(30);
-            }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: 500 }}>30</Text>
+            <AntDesign name="plus" size={100} color={colors.icon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -218,28 +224,6 @@ const styles = StyleSheet.create({
     width: 131,
     justifyContent: "space-around",
     borderRadius: 10,
-  },
-  numberContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: 80,
-    height: 80,
-    backgroundColor: "#fff",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65, // Added for iOS
-    elevation: 7, // Added for Android
-  },
-  allNumberContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 30,
-    justifyContent: "center",
-    marginTop: 50,
   },
 });
 
