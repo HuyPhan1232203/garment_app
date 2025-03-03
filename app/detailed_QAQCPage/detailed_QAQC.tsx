@@ -1,4 +1,14 @@
-import { StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+  TextInput,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { defaultStyles } from "@/styles/default";
 import { Header } from "@/components/Header";
@@ -6,6 +16,7 @@ import { AntDesign, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import QAModal from "@/components/QAModal";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const detailed_QAQC = () => {
   const params = useLocalSearchParams();
@@ -14,6 +25,7 @@ const detailed_QAQC = () => {
   const [error, setError] = useState(null);
   const [modalVisibleQG, setModalVisibleQG] = useState(false);
   const [modalVisibleQB, setModalVisibleQB] = useState(false); // Thêm state này
+  const [inputValue, setInputValue] = useState('');
 
   const handleSubmitBad = async (value) => {
     console.log("📌 Người dùng nhập số lượng lỗi:", value);
@@ -88,77 +100,98 @@ const detailed_QAQC = () => {
     }
   };
 
-
-  const handleSubmitGood = async (value) => {
-    console.log("📌 Người dùng nhập số lượng đạt:", value);
-    console.log("📌 Đang gửi PUT request với ID:", params.id);
-
-    const quantityGood = Number(value);
-    if (isNaN(quantityGood) || quantityGood < 0) {
-      console.error("❌ Giá trị không hợp lệ!");
+  //hàm báo cáo số lượng 
+  const handleReport = async () => {
+    // Kiểm tra xem đã nhập số lượng chưa
+    if (!inputValue || inputValue.trim() === '') {
+      alert('Vui lòng nhập số lượng sản phẩm đạt!');
       return;
     }
 
-    // Kiểm tra quantityGood không vượt quá quantityProduct
+    const quantityGood = Number(inputValue);
+
+    // Kiểm tra số lượng hợp lệ
+    if (isNaN(quantityGood) || quantityGood < 0) {
+      alert('Số lượng không hợp lệ!');
+      return;
+    }
+
+    // Kiểm tra số lượng không vượt quá tổng số
     const totalProduct = qaDetail?.quantityProduct || 0;
     if (quantityGood > totalProduct) {
-      console.error("❌ Số lượng đạt không thể lớn hơn tổng số sản phẩm!");
+      alert('Số lượng đạt không thể lớn hơn tổng số sản phẩm!');
       return;
     }
 
-    // Hàm chuẩn hóa định dạng ngày thành YYYY-MM-DD HH:mm
-    const formatDate = (date) => {
-      if (!date) return "2025-07-02 00:00"; // Giá trị mặc định nếu không có
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
-      const day = String(d.getDate()).padStart(2, "0");
-      const hours = String(d.getHours()).padStart(2, "0");
-      const minutes = String(d.getMinutes()).padStart(2, "0");
-      return `${year}-${month}-${day} ${hours}:${minutes}`;
-    };
-
-    const updatedData = {
-      code: qaDetail?.code || "QAD00004",
-      name: qaDetail?.name || "string",
-      description: qaDetail?.description || "string",
-      quantityGood: quantityGood, // Giá trị mới từ input
-      quantityBad: qaDetail?.quantityBad || 0,
-      quantityProduct: totalProduct,
-      dateStart: formatDate(qaDetail?.dateStart),
-      dateEnd: formatDate(qaDetail?.dateEnd),
-      qaTaskId: qaDetail?.qaTaskId || params.id,
-      shift: qaDetail?.shift || "string",
-    };
-
     try {
-      const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`, {
-        method: "PUT",
-        headers: {
-          "accept": "*/*",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
+      const updatedData = {
+        code: qaDetail?.code || "QAD00004",
+        name: qaDetail?.name || "string",
+        description: qaDetail?.description || "string",
+        quantityGood: quantityGood,
+        quantityBad: qaDetail?.quantityBad || 0,
+        quantityProduct: totalProduct,
+        dateStart: qaDetail?.dateStart,
+        dateEnd: qaDetail?.dateEnd,
+        qaTaskId: qaDetail?.qaTaskId || params.id,
+        shift: qaDetail?.shift || "string",
+      };
+
+      const response = await fetch(
+        `https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "accept": "*/*",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
 
       const result = await response.json();
-      console.log("📌 API Response (raw):", result);
-      console.log("📌 Response status:", response.status);
-      console.log("📌 JSON body gửi đi:", JSON.stringify(updatedData, null, 2));
 
       if (response.ok && result?.statusCode === 200) {
-        console.log("✅ Cập nhật số lượng đạt thành công:", result.data?.message || "Thành công");
-        setQaDetail((prev) => ({
+        // Cập nhật state local
+        setQaDetail(prev => ({
           ...prev,
-          quantityGood: quantityGood,
+          quantityGood: quantityGood
         }));
-        setModalVisibleQG(false); // Đóng modal số lượng đạt
+
+        // Xóa dữ liệu input và local storage
+        setInputValue('');
+        await AsyncStorage.removeItem(`qaDetail_${params.id}`);
+
+        alert('Báo cáo số lượng thành công!');
       } else {
-        const errorMsg = result?.ErrorMessage || result?.message || "API không trả về thông tin lỗi rõ ràng";
-        console.error("❌ Lỗi từ API:", errorMsg);
+        alert('Có lỗi xảy ra khi báo cáo!');
       }
     } catch (error) {
-      console.error("❌ Lỗi khi gửi request:", error.message);
+      console.error('Lỗi khi gửi báo cáo:', error);
+      alert('Có lỗi xảy ra khi báo cáo!');
+    }
+  };
+
+  const saveToLocalStorage = async (value) => {
+    try {
+      const key = `qaDetail_${params.id}`;
+      await AsyncStorage.setItem(key, value);
+      console.log('✅ Đã lưu dữ liệu vào local storage');
+    } catch (error) {
+      console.error('❌ Lỗi khi lưu dữ liệu:', error);
+    }
+  };
+
+  const loadFromLocalStorage = async () => {
+    try {
+      const key = `qaDetail_${params.id}`;
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        setInputValue(value);
+        console.log('✅ Đã lấy dữ liệu từ local storage:', value);
+      }
+    } catch (error) {
+      console.error('❌ Lỗi khi lấy dữ liệu:', error);
     }
   };
 
@@ -174,7 +207,7 @@ const detailed_QAQC = () => {
 
         const result = await response.json();
         console.log("API Response:", result);
-        
+
         if (result.data === null) {
           setError("Không có chi tiết trong khung giờ này");
           setQaDetail(null);
@@ -194,7 +227,31 @@ const detailed_QAQC = () => {
     };
 
     fetchQaDetail();
-}, [params.id]);
+    loadFromLocalStorage();
+  }, [params.id]);
+
+  // Thêm hàm formatTime để định dạng giờ
+  const formatTime = (dateString) => {
+    if (!dateString) return "00:00";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
+  //hàm resetLocalStorage đặt giá trị ở local = null
+  const resetLocalStorage = async () => {
+    try {
+      const key = `qaDetail_${params.id}`;
+      await AsyncStorage.removeItem(key);
+      setInputValue(''); // Reset giá trị input về rỗng
+      console.log('✅ Đã xóa dữ liệu local storage');
+    } catch (error) {
+      console.error('❌ Lỗi khi xóa dữ liệu:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -222,152 +279,130 @@ const detailed_QAQC = () => {
     : "Chi tiết QA";
 
   return (
-    <View style={defaultStyles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={defaultStyles.container}
+      keyboardVerticalOffset={20} // Thêm offset 20 đơn vị
+    >
       <Header text={headerText} />
-      <View style={{ flexDirection: "column", alignItems: "center", flex: 1 }}>
-        {/* quantity */}
-        <View style={styles.quantityTextContainer}>
-          <View style={{ flexDirection: "row" }}>
-            <Ionicons name="calculator-outline" size={24} color="black" />
-            <Text style={styles.quantityText}>Tổng số lượng:</Text>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{
+          flexDirection: "column",
+          alignItems: "center",
+          paddingBottom: 50 // Thêm padding bottom để tránh bàn phím
+        }}>
+          {/* quantity */}
+          <View style={styles.quantityTextContainer}>
+            <View style={{ flexDirection: "row" }}>
+              <Ionicons name="calculator-outline" size={24} color="black" />
+              <Text style={styles.quantityText}>Tổng số lượng:</Text>
+            </View>
+            <Text style={styles.quantityText}>{qaDetail?.quantityProduct || 0}</Text>
           </View>
-          <Text style={styles.quantityText}>{qaDetail?.quantityProduct || 0}</Text>
-        </View>
-        {/* detail quantity  */}
-        <View style={styles.detailQuantContainer}>
-          <View style={styles.detailQuant}>
-            <Text style={defaultStyles.text}>Số lượng đạt</Text>
-            <Text
-              style={[
-                defaultStyles.text,
-                { color: "#18611E", fontWeight: 600, paddingTop: 15 },
-              ]}
-            >
-              {qaDetail?.quantityGood || 0}
-            </Text>
+          {/* detail quantity  */}
+          <View style={styles.detailQuantContainer}>
+            <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+              <View style={styles.detailQuant}>
+                <Text style={defaultStyles.text}>Sản phẩm đạt</Text>
+                <Text
+                  style={[
+                    defaultStyles.text,
+                    { color: "#18611E", fontWeight: 600, paddingTop: 15 },
+                  ]}
+                >
+                  {qaDetail?.quantityGood || 0}
+                </Text>
+              </View>
+
+              <View style={styles.detailQuant}>
+                <Text style={defaultStyles.text}>Sản phẩm lỗi</Text>
+                <Text
+                  style={[
+                    defaultStyles.text,
+                    { color: "#FF0000", fontWeight: 600, paddingTop: 15 },
+                  ]}
+                >
+                  {qaDetail?.quantityBad || 0}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.detailQuant}>
+              <Text style={defaultStyles.text}>Giờ kết thúc</Text>
+              <Text
+                style={[
+                  defaultStyles.text,
+                  { color: "#FF0000", fontWeight: 600, paddingTop: 15 },
+                ]}
+              >
+                {formatTime(qaDetail?.dateEnd) || "00:00"}
+              </Text>
+            </View>
           </View>
 
-          <View style={styles.detailQuant}>
-            <Text style={defaultStyles.text}>Số lượng lỗi</Text>
-            <Text
-              style={[
-                defaultStyles.text,
-                { color: "#FF0000", fontWeight: 600, paddingTop: 15 },
-              ]}
+          {/* feature */}
+          <View style={styles.featureContainer}>
+            <TouchableOpacity style={[styles.feature, {}]}>
+              <Text style={{ ...defaultStyles.text, color: "#fff" }}>
+                Đặt lại ô nhập
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.feature, {}]}
+              onPress={handleReport}
             >
-              {qaDetail?.quantityBad || 0}
+              <Text style={{ ...defaultStyles.text, color: "#fff" }}>
+                Báo cáo
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.feature, {}]}
+              onPress={resetLocalStorage}
+            >
+              <Text style={{ ...defaultStyles.text, color: "#fff" }}>
+                Đặt lại dữ liệu local
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {/* Choose number */}
+          <View style={styles.allnumberContainer}>
+            {/* Mỗi button lỗi */}
+            <TouchableOpacity style={styles.numberWrapper}>
+              <Text style={styles.numberText}>Chỉ Thừa</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.numberWrapper}>
+              <Text style={styles.numberText}>Cháy thủng</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.numberWrapper}>
+              <Text style={styles.numberText}>Bông rộp</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.numberWrapper}>
+              <Text style={styles.numberText}>Rách</Text>
+            </TouchableOpacity>
+            <Text>
+              Fetch api mã lỗi
             </Text>
           </View>
-        </View>
-
-        {/* feature */}
-        <View style={styles.featureContainer}>
-          <TouchableOpacity style={styles.feature}>
-            <Feather name="trash" size={24} color="#fff" />
-            <Text
-              style={{ ...defaultStyles.text, color: "#fff", paddingLeft: 10 }}
-            >
-              Xoá lỗi
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.feature, { backgroundColor: "#1C9D1F" }]}
-            onPress={() => setModalVisibleQB(true)}
-          >
-            <FontAwesome5 name="flag" size={24} color="#fff" />
-            <Text style={{ ...defaultStyles.text, color: "#fff", paddingLeft: 10 }}>
-              Báo cáo
-            </Text>
-          </TouchableOpacity>
-          <QAModal
-            visible={modalVisibleQB}
-            onClose={() => setModalVisibleQB(false)}
-            onSubmit={handleSubmitBad}
-            title="Số lượng lỗi"
-            label="Nhập số lượng sản phẩm lỗi"
+          <TextInput
+            style={[styles.input, { marginBottom: 20 }]} // Thêm marginBottom
             placeholder="Nhập số lượng"
+            placeholderTextColor="#666"
+            value={inputValue}
+            onChangeText={(text) => {
+              setInputValue(text);
+              saveToLocalStorage(text);
+            }}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
             keyboardType="numeric"
-            cancelText="Hủy"
-            submitText="Báo cáo"
-            isRequired={true}
-            maxLength={10}
           />
-
-          <TouchableOpacity
-            style={[styles.feature, { backgroundColor: "#2589FF" }]}
-          >
-            <AntDesign name="plus" size={24} color="#fff" />
-            <Text
-              style={{ ...defaultStyles.text, color: "#fff", paddingLeft: 10 }}
-            >
-              Thêm lỗi
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.feature, { backgroundColor: "#8979FF" }]}
-            onPress={() => setModalVisibleQG(true)}
-          >
-            <Text style={{ ...defaultStyles.text, color: "#fff" }}>
-              Nhập SL đạt
-            </Text>
-          </TouchableOpacity>
-
-          <QAModal
-            visible={modalVisibleQG}
-            onClose={() => setModalVisibleQG(false)}
-            onSubmit={handleSubmitGood}
-            title="Số lượng đạt"
-            label="Nhập số lượng sản phẩm đạt"
-            placeholder="Nhập số lượng"
-            keyboardType="numeric"
-            cancelText="Hủy"
-            submitText="Xác nhận"
-            isRequired={true}
-            maxLength={10}
-          />
-
         </View>
-        {/* Choose number */}
-        <View style={styles.allnumberContainer}>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.numberContainer}>00</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -391,7 +426,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   detailQuantContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
     backgroundColor: "#009DFF80",
     paddingVertical: 18,
@@ -427,24 +462,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#FF111191",
     alignItems: "center",
-    width: 143,
+    width: 'auto',
     height: 42,
     paddingHorizontal: 15,
     borderRadius: 5,
     marginVertical: 10,
   },
   featureContainer: {
+    gap: 10,
     width: 319,
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginTop: 20,
+    flexWrap: "wrap",
   },
-  numberContainer: {
-    fontSize: 16,
-    fontWeight: 500,
-    paddingVertical: 28,
-    paddingHorizontal: 25,
+  numberWrapper: {
     backgroundColor: "#fff",
     shadowOffset: {
       width: 0,
@@ -452,8 +484,15 @@ const styles = StyleSheet.create({
     },
     shadowColor: "#000",
     shadowOpacity: 0.3,
-    shadowRadius: 4.65, // Added for iOS
-    elevation: 7, // Added for Android
+    shadowRadius: 4.65,
+    elevation: 7,
+    borderRadius: 5,
+  },
+  numberText: {
+    fontSize: 16,
+    fontWeight: '500',
+    paddingVertical: 28,
+    paddingHorizontal: 25,
   },
   allnumberContainer: {
     flexDirection: "row",
@@ -462,13 +501,29 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 30,
   },
-  errorContainer: {
-    padding: 20,
-  },
   errorText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
     fontWeight: '500',
+  },
+  input: {
+    width: 319,
+    height: 50,
+    backgroundColor: '#fff',
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 10,
+    fontSize: 16,
+    color: '#333',
+    textAlignVertical: 'top',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
