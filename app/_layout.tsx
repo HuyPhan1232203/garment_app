@@ -22,6 +22,7 @@ const RootNavigation = () => (
     <Stack.Screen name="index" options={{ headerShown: false }} />
     <Stack.Screen name="departmentPage" options={{ headerShown: false }} />
     <Stack.Screen name="taskPage" options={{ headerShown: false }} />
+    <Stack.Screen name="QADepartmentPage" options={{ headerShown: false }} />
     <Stack.Screen name="confirmPage" options={{ headerShown: false }} />
     <Stack.Screen name="detailed_QAQCPage" options={{ headerShown: false }} />
     <Stack.Screen name="taskDetailPage" options={{ headerShown: false }} />

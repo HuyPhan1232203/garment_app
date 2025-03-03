@@ -166,7 +166,7 @@ const detailed_QAQC = () => {
     const fetchQaDetail = async () => {
       try {
         console.log("Fetching QA detail for ID:", params.id);
-        const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`);
+        const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/getbyqatask/${params.id}`);
 
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`);
@@ -174,22 +174,27 @@ const detailed_QAQC = () => {
 
         const result = await response.json();
         console.log("API Response:", result);
+        
+        if (result.data === null) {
+          setError("Không có chi tiết trong khung giờ này");
+          setQaDetail(null);
+          setLoading(false);
+          return; // Thêm return để dừng execution
+        }
+
         setQaDetail(result.data);
+        setError(null);
       } catch (err) {
         console.error("Error fetching QA detail:", err);
         setError(err.message);
+        setQaDetail(null);
       } finally {
         setLoading(false);
       }
     };
 
-    if (params.id) {
-      fetchQaDetail();
-    } else {
-      setError("No task ID provided");
-      setLoading(false);
-    }
-  }, [params.id]);
+    fetchQaDetail();
+}, [params.id]);
 
   if (loading) {
     return (
@@ -202,8 +207,11 @@ const detailed_QAQC = () => {
 
   if (error) {
     return (
-      <View style={[defaultStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={[defaultStyles.text, { color: '#FF0000' }]}>Lỗi: {error}</Text>
+      <View style={defaultStyles.container}>
+        <Header text="Chi tiết QA" />
+        <View style={[styles.errorContainer, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={[defaultStyles.text, styles.errorText]}>{error}</Text>
+        </View>
       </View>
     );
   }
@@ -453,5 +461,14 @@ const styles = StyleSheet.create({
     width: 319,
     gap: 12,
     marginTop: 30,
+  },
+  errorContainer: {
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

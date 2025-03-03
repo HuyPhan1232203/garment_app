@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { storeTaskDetail } from "@/slices/taskDetailSlice";
 
 const QATask = () => {
+    const { id, name } = useLocalSearchParams();
     const [loading, setLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState(null);
@@ -16,31 +17,39 @@ const QATask = () => {
 
     useEffect(() => {
         fetchQATasks();
-    }, []);
+    }, [id]); // Thêm id vào dependency array
 
     const fetchQATasks = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('https://api-xuongmay-dev.lighttail.com/api/qadetail?pageIndex=1&pageSize=10');
+            const response = await axios.get(
+                `https://api-xuongmay-dev.lighttail.com/api/qatask/getqalist?pageIndex=1&pageSize=10&departmentId=${id}`
+            );
             setTasks(response.data.data.items);
-            console.log(response.data.data.items);
+            console.log("Dữ liệu nhận được:", response.data.data.items);
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching QA tasks:', err);
+            console.error('Lỗi khi tải dữ liệu:', err);
             setError('Có lỗi xảy ra khi tải dữ liệu');
             setLoading(false);
         }
     };
 
     const handleTaskPress = (task) => {
-        // Lưu thông tin task được chọn vào Redux store
+        // Lưu thông tin task vào Redux store
         dispatch(storeTaskDetail(task));
-        // Điều hướng đến trang chi tiết task
+        
+        // Điều hướng đến trang chi tiết và truyền params
         router.push({
             pathname: "/detailed_QAQCPage/detailed_QAQC",
-            params: { id: task.id, name: task.name, code: task.code }
-          });          
-        console.log("Task id: ",task.id);
+            params: { 
+                id: task.id,
+                name: task.name,
+                code: task.code,
+                quantityProduct: task.quantityProduct
+            }
+        });          
+        console.log("Task được chọn:", task);
     };
 
     const renderItem = ({ item }) => (
@@ -82,7 +91,7 @@ const QATask = () => {
 
     return (
         <View style={defaultStyles.container}>
-            <Header text='QAQC - role' />
+            <Header text={`QAQC - ${name}`} />
             <View style={styles.container}>
                 <Text style={styles.title}>Danh sách tasks QAQC</Text>
                 <FlatList

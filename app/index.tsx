@@ -20,7 +20,7 @@ export default function loginPage() {
   };
   const handleLoginQA = () => {
     // dispatch(fetchUser({ account, password }));
-    router.navigate("/QA_Task/QATask");
+    router.navigate("/QADepartmentPage/QADepartment");
   };
 
   useEffect(() => {
