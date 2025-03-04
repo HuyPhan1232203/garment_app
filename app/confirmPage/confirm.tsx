@@ -1,10 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { useSelector } from "react-redux";
@@ -65,14 +59,14 @@ const confirm = () => {
     });
     console.log(idTaskDetail);
     try {
-      const res = await axios.put(
+      await axios.put(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail/${idTaskDetail}`,
         {
           code: `${codeTaskDetail}`,
           name: `${nameTaskDetail}`,
           quantity: inputValue,
-          dateStart: `${dateStartTaskDetail}`,
-          dateEnd: `${dateEndTaskDetail}`,
+          dateStart: `${formatDateToString(dateStartTaskDetail)}`,
+          dateEnd: `${formatDateToString(dateEndTaskDetail)}`,
           operationId: `${operationIdTaskDetail}`,
           taskProductId: `${taskProductIdTaskDetail}`,
         }
@@ -85,9 +79,8 @@ const confirm = () => {
     } catch (error) {
       Toast.show({
         type: "error",
-        text1: "asda",
+        text1: "updated error",
       });
-      console.log(error.res.data.data.items);
     }
   };
   return (
