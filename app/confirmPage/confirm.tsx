@@ -15,6 +15,7 @@ import { colors } from "@/constraints/token";
 import Input from "@/components/Input";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import { formatDateToString } from "@/helper/validateDate";
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
   const id = useSelector((store) => store.task.id);
@@ -57,14 +58,14 @@ const confirm = () => {
       code: `${codeTaskDetail}`,
       name: `${nameTaskDetail}`,
       quantity: inputValue,
-      dateStart: `${dateStartTaskDetail}`,
-      dateEnd: `${dateEndTaskDetail}`,
+      dateStart: `${formatDateToString(dateStartTaskDetail)}`,
+      dateEnd: `${formatDateToString(dateEndTaskDetail)}`,
       operationId: `${operationIdTaskDetail}`,
       taskProductId: `${taskProductIdTaskDetail}`,
     });
     console.log(idTaskDetail);
     try {
-      await axios.put(
+      const res = await axios.put(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail/${idTaskDetail}`,
         {
           code: `${codeTaskDetail}`,
@@ -81,11 +82,12 @@ const confirm = () => {
         type: "success",
         text1: "Updated Successfully",
       });
-    } catch {
+    } catch (error) {
       Toast.show({
         type: "error",
-        text1: "Updated Error",
+        text1: "asda",
       });
+      console.log(error.res.data.data.items);
     }
   };
   return (
