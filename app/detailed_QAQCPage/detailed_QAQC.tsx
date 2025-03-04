@@ -23,152 +23,181 @@ const detailed_QAQC = () => {
   const [qaDetail, setQaDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modalVisibleQG, setModalVisibleQG] = useState(false);
-  const [modalVisibleQB, setModalVisibleQB] = useState(false); // Thêm state này
+  const [defectCodes, setDefectCodes] = useState([]);
+  const [selectedDefectIds, setSelectedDefectIds] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
-  const handleSubmitBad = async (value) => {
-    console.log("📌 Người dùng nhập số lượng lỗi:", value);
-    console.log("📌 Đang gửi PUT request với ID:", params.id);
-
-    const quantityBad = Number(value);
-    if (isNaN(quantityBad) || quantityBad < 0) {
-      console.error("❌ Giá trị không hợp lệ!");
-      return;
-    }
-
-    // Kiểm tra quantityBad không vượt quá quantityProduct
-    const totalProduct = qaDetail?.quantityProduct || 0;
-    if (quantityBad > totalProduct) {
-      console.error("❌ Số lượng lỗi không thể lớn hơn tổng số sản phẩm!");
-      return;
-    }
-
-    // Hàm chuẩn hóa định dạng ngày thành YYYY-MM-DD HH:mm
-    const formatDate = (date) => {
-      if (!date) return "2025-07-02 00:00"; // Giá trị mặc định nếu không có
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
-      const day = String(d.getDate()).padStart(2, "0");
-      const hours = String(d.getHours()).padStart(2, "0");
-      const minutes = String(d.getMinutes()).padStart(2, "0");
-      return `${year}-${month}-${day} ${hours}:${minutes}`;
-    };
-
-    const updatedData = {
-      code: qaDetail?.code || "QAD00004",
-      name: qaDetail?.name || "string",
-      description: qaDetail?.description || "string",
-      quantityGood: qaDetail?.quantityGood || 0,
-      quantityBad: quantityBad,
-      quantityProduct: totalProduct,
-      dateStart: formatDate(qaDetail?.dateStart),
-      dateEnd: formatDate(qaDetail?.dateEnd),
-      qaTaskId: qaDetail?.qaTaskId || params.id,
-      shift: qaDetail?.shift || "string",
-    };
-
+  const fetchDefectCodes = async () => {
     try {
-      const response = await fetch(`https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`, {
-        method: "PUT",
-        headers: {
-          "accept": "*/*",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
+      const response = await fetch(
+        "https://api-xuongmay-dev.lighttail.com/api/defectcode?pageIndex=1&pageSize=10"
+      );
+
+      if (!response.ok) {
+        throw new Error(`API responded with status: ${response.status}`);
+      }
 
       const result = await response.json();
-      console.log("📌 API Response (raw):", result);
-      console.log("📌 Response status:", response.status);
-      console.log("📌 JSON body gửi đi:", JSON.stringify(updatedData, null, 2));
+      console.log("✅ Lấy danh sách mã lỗi thành công:", result);
 
-      if (response.ok && result?.statusCode === 200) {
-        console.log("✅ Cập nhật số lượng lỗi thành công:", result.data?.message || "Thành công");
-        setQaDetail((prev) => ({
-          ...prev,
-          quantityBad: quantityBad,
-        }));
-        setModalVisibleQB(false);
-      } else {
-        const errorMsg = result?.ErrorMessage || result?.message || "API không trả về thông tin lỗi rõ ràng";
-        console.error("❌ Lỗi từ API:", errorMsg);
+      if (result.data?.items) {
+        setDefectCodes(result.data.items);
       }
     } catch (error) {
-      console.error("❌ Lỗi khi gửi request:", error.message);
+      console.error("❌ Lỗi khi lấy danh sách mã lỗi:", error);
     }
   };
 
+  // Thêm useEffect để fetch defect codes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        await Promise.all([
+          fetchDefectCodes(),
+          loadFromLocalStorage(),
+          loadSelectedDefectsFromLocal() // Add this
+        ]);
+      } catch (error) {
+        console.error("❌ Lỗi khi tải dữ liệu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [params.id]);
+
   //hàm báo cáo số lượng 
   const handleReport = async () => {
-    // Kiểm tra xem đã nhập số lượng chưa
-    if (!inputValue || inputValue.trim() === '') {
+    // Validation checks như cũ
+    if (!inputValue?.trim()) {
       alert('Vui lòng nhập số lượng sản phẩm đạt!');
       return;
     }
 
     const quantityGood = Number(inputValue);
+    const totalProduct = qaDetail?.quantityProduct || 0;
 
-    // Kiểm tra số lượng hợp lệ
     if (isNaN(quantityGood) || quantityGood < 0) {
       alert('Số lượng không hợp lệ!');
       return;
     }
 
-    // Kiểm tra số lượng không vượt quá tổng số
-    const totalProduct = qaDetail?.quantityProduct || 0;
     if (quantityGood > totalProduct) {
       alert('Số lượng đạt không thể lớn hơn tổng số sản phẩm!');
       return;
     }
 
     try {
-      const updatedData = {
-        code: qaDetail?.code || "QAD00004",
-        name: qaDetail?.name || "string",
-        description: qaDetail?.description || "string",
-        quantityGood: quantityGood,
-        quantityBad: qaDetail?.quantityBad || 0,
-        quantityProduct: totalProduct,
-        dateStart: qaDetail?.dateStart,
-        dateEnd: qaDetail?.dateEnd,
-        qaTaskId: qaDetail?.qaTaskId || params.id,
-        shift: qaDetail?.shift || "string",
+      const currentQuantityGood = Number(qaDetail?.quantityGood || 0);
+      const currentQuantityBad = Number(qaDetail?.quantityBad || 0);
+
+      // Tính toán số lượng mới dựa vào có mã lỗi hay không
+      const isDefectReport = selectedDefectIds.length > 0;
+      const updateQuantityData = {
+        typeQuantity: isDefectReport ? 1 : 0,
+        quantity: Number(inputValue)
       };
 
+      console.log("📌 QA Detail hiện tại:", qaDetail);
+      console.log("📌 Có mã lỗi:", isDefectReport);
+      console.log("📌 Dữ liệu gửi đi Update Quantity:", updateQuantityData);
+
+      // Gửi request cập nhật QA Detail
       const response = await fetch(
-        `https://api-xuongmay-dev.lighttail.com/api/qadetail/${params.id}`,
+        `https://api-xuongmay-dev.lighttail.com/api/qadetail/updatequantity/${qaDetail?.id}`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "accept": "*/*",
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(updateQuantityData)
         }
       );
 
-      const result = await response.json();
+      // Kiểm tra response.text() trước
+      const responseText = await response.text();
+      console.log("📌 Raw response:", responseText);
 
-      if (response.ok && result?.statusCode === 200) {
-        // Cập nhật state local
-        setQaDetail(prev => ({
-          ...prev,
-          quantityGood: quantityGood
-        }));
-
-        // Xóa dữ liệu input và local storage
-        setInputValue('');
-        await AsyncStorage.removeItem(`qaDetail_${params.id}`);
-
-        alert('Báo cáo số lượng thành công!');
-      } else {
-        alert('Có lỗi xảy ra khi báo cáo!');
+      let result = null;
+      try {
+        // Parse JSON từ text nếu có
+        result = responseText ? JSON.parse(responseText) : null;
+        console.log("📌 Parsed response:", result);
+      } catch (parseError) {
+        console.error("❌ Error parsing JSON:", parseError);
+        throw new Error('Invalid JSON response from server');
       }
+
+      if (!response.ok || !result) {
+        throw new Error(result?.ErrorMessage || 'Có lỗi xảy ra khi cập nhật số lượng');
+      }
+
+      console.log("📌 Kết quả API Update Quantity:", result);
+
+      if (!response.ok) {
+        throw new Error(result?.ErrorMessage || 'Có lỗi xảy ra khi cập nhật số lượng');
+      }
+
+      // Nếu có mã lỗi được chọn, gửi thêm request để tạo defect product
+      if (isDefectReport) {
+        const defectData = {
+          defectCodeId: selectedDefectIds[0],
+          quantity: Number(inputValue),
+          qaDetailId: qaDetail?.id
+        };
+
+        console.log("📌 Dữ liệu gửi đi cho defect:", defectData);
+
+        const defectResponse = await fetch(
+          'https://api-xuongmay-dev.lighttail.com/api/defectproduct/addmanydefect',
+          {
+            method: 'POST',
+            headers: {
+              "accept": "*/*",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(defectData)
+          }
+        );
+
+        const defectResult = await defectResponse.json();
+        console.log("📌 Kết quả API Defect:", defectResult);
+
+        if (!defectResponse.ok) {
+          throw new Error(defectResult?.message || defectResult?.ErrorMessage || 'Có lỗi xảy ra khi tạo defect product');
+        }
+        console.log("cập nhật mã lỗi thành công");
+
+      }
+
+      console.log("📌 QA Detail hiện tại:", qaDetail);
+      console.log("📌 Số lượng đạt hiện tại:", currentQuantityGood);
+      console.log("📌 Số lượng lỗi hiện tại:", currentQuantityBad);
+      console.log("📌 Số lượng thêm mới:", inputValue);
+
+      // Cập nhật state và xóa dữ liệu local
+      setQaDetail(prev => ({
+        ...prev,
+        quantityGood: isDefectReport ? currentQuantityGood : currentQuantityGood + Number(inputValue),
+        quantityBad: isDefectReport ? currentQuantityBad + Number(inputValue) : currentQuantityBad
+      }));
+
+      // Reset form và local storage
+      setInputValue('');
+      setSelectedDefectIds([]);
+      await Promise.all([
+        AsyncStorage.removeItem(`qaDetail_${params.id}`),
+        AsyncStorage.removeItem(`selectedDefects_${params.id}`)
+      ]);
+
+      alert('Báo cáo số lượng thành công!');
+
     } catch (error) {
-      console.error('Lỗi khi gửi báo cáo:', error);
-      alert('Có lỗi xảy ra khi báo cáo!');
+      console.error('❌ Lỗi khi gửi báo cáo:', error);
+      alert(`Có lỗi xảy ra: ${error.message}`);
     }
   };
 
@@ -253,6 +282,56 @@ const detailed_QAQC = () => {
     }
   };
 
+  const handleDefectSelect = (defectId) => {
+    setSelectedDefectIds(prev => {
+      let newSelectedIds;
+      if (prev.includes(defectId)) {
+        // Nếu click vào mã lỗi đang được chọn -> bỏ chọn
+        newSelectedIds = [];
+      } else {
+        // Nếu click vào mã lỗi khác -> chọn mã lỗi mới và bỏ chọn mã cũ
+        newSelectedIds = [defectId];
+      }
+
+      // Lưu vào local storage
+      saveSelectedDefectsToLocal(newSelectedIds);
+      return newSelectedIds;
+    });
+  };
+
+  const saveSelectedDefectsToLocal = async (defectIds) => {
+    try {
+      const key = `selectedDefects_${params.id}`;
+      await AsyncStorage.setItem(key, JSON.stringify(defectIds));
+      console.log('✅ Đã lưu mã lỗi vào local storage:', defectIds);
+    } catch (error) {
+      console.error('❌ Lỗi khi lưu mã lỗi:', error);
+    }
+  };
+
+  const loadSelectedDefectsFromLocal = async () => {
+    try {
+      const key = `selectedDefects_${params.id}`;
+      const value = await AsyncStorage.getItem(key);
+      if (value !== null) {
+        setSelectedDefectIds(JSON.parse(value));
+        console.log('✅ Đã lấy mã lỗi từ local storage:', value);
+      }
+    } catch (error) {
+      console.error('❌ Lỗi khi lấy mã lỗi:', error);
+    }
+  };
+  const resetDefectSelection = async () => {
+    try {
+      const key = `selectedDefects_${params.id}`;
+      await AsyncStorage.removeItem(key);
+      setSelectedDefectIds([]); // Reset về mảng rỗng
+      console.log('✅ Đã xóa mã lỗi khỏi local storage');
+    } catch (error) {
+      console.error('❌ Lỗi khi xóa mã lỗi:', error);
+    }
+  };
+
   if (loading) {
     return (
       <View style={[defaultStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -331,13 +410,15 @@ const detailed_QAQC = () => {
               </View>
             </View>
             <View style={styles.detailQuant}>
-              <Text style={defaultStyles.text}>Giờ kết thúc</Text>
+              <Text style={defaultStyles.text}>Khung giờ</Text>
               <Text
                 style={[
                   defaultStyles.text,
                   { color: "#FF0000", fontWeight: 600, paddingTop: 15 },
                 ]}
               >
+                {formatTime(qaDetail?.dateStart) || "00:00"}
+                -
                 {formatTime(qaDetail?.dateEnd) || "00:00"}
               </Text>
             </View>
@@ -345,7 +426,10 @@ const detailed_QAQC = () => {
 
           {/* feature */}
           <View style={styles.featureContainer}>
-            <TouchableOpacity style={[styles.feature, {}]}>
+            <TouchableOpacity
+              style={[styles.feature, {}]}
+              onPress={resetDefectSelection}
+            >
               <Text style={{ ...defaultStyles.text, color: "#fff" }}>
                 Đặt lại ô nhập
               </Text>
@@ -363,28 +447,35 @@ const detailed_QAQC = () => {
               onPress={resetLocalStorage}
             >
               <Text style={{ ...defaultStyles.text, color: "#fff" }}>
-                Đặt lại dữ liệu local
+                Xóa dữ liệu local
               </Text>
             </TouchableOpacity>
           </View>
           {/* Choose number */}
           <View style={styles.allnumberContainer}>
-            {/* Mỗi button lỗi */}
-            <TouchableOpacity style={styles.numberWrapper}>
-              <Text style={styles.numberText}>Chỉ Thừa</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.numberWrapper}>
-              <Text style={styles.numberText}>Cháy thủng</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.numberWrapper}>
-              <Text style={styles.numberText}>Bông rộp</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.numberWrapper}>
-              <Text style={styles.numberText}>Rách</Text>
-            </TouchableOpacity>
-            <Text>
-              Fetch api mã lỗi
-            </Text>
+            {defectCodes.map((defect) => (
+              <TouchableOpacity
+                key={defect.id}
+                style={[
+                  styles.numberWrapper,
+                  {
+                    backgroundColor: defect.backGroundColor || '#fff',
+                    borderWidth: selectedDefectIds.includes(defect.id) ? 3 : 0,
+                    borderColor: selectedDefectIds.includes(defect.id) ? '#009DFF' : 'transparent'
+                  }
+                ]}
+                onPress={() => handleDefectSelect(defect.id)}
+              >
+                <Text style={[
+                  styles.numberText,
+                  {
+                    color: defect.textColor || '#000'
+                  }
+                ]}>
+                  {defect.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
           <TextInput
             style={[styles.input, { marginBottom: 20 }]} // Thêm marginBottom
@@ -432,7 +523,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 15,
     borderRadius: 10,
-    width: 319,
+    width: '100%',
   },
   detailQuant: {
     ...defaultStyles.text,
@@ -470,7 +561,7 @@ const styles = StyleSheet.create({
   },
   featureContainer: {
     gap: 10,
-    width: 319,
+    width: "100%",
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 20,
@@ -487,19 +578,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 7,
     borderRadius: 5,
+    // Thêm width để item nhỏ hơn
+    width: '48%', // Cho phép 2 item trên một hàng
   },
   numberText: {
-    fontSize: 16,
+    fontSize: 14, // Giảm font size từ 16 xuống 14
     fontWeight: '500',
-    paddingVertical: 28,
-    paddingHorizontal: 25,
+    paddingVertical: 15, // Giảm padding từ 28 xuống 15
+    paddingHorizontal: 15, // Giảm padding từ 25 xuống 15
+    textAlign: 'center', // Căn giữa text
   },
   allnumberContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     width: 319,
-    gap: 12,
+    gap: 8, // Giảm gap từ 12 xuống 8
     marginTop: 30,
+    justifyContent: 'space-between', // Căn đều các items
   },
   errorText: {
     fontSize: 16,
