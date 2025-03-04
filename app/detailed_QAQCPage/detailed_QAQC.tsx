@@ -14,8 +14,6 @@ import { defaultStyles } from "@/styles/default";
 import { Header } from "@/components/Header";
 import { AntDesign, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import QAModal from "@/components/QAModal";
-import { createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const detailed_QAQC = () => {
