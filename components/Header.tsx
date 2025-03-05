@@ -15,7 +15,7 @@ export const Header = ({ text, isChild }: textProps) => {
   const dispatch = useDispatch();
   const handleLogout = () => {
     dispatch(logout());
-    router.navigate("..");
+    router.navigate("/");
   };
   return (
     <View
