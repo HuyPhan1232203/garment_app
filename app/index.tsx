@@ -36,9 +36,7 @@ export default function loginPage() {
           password: password,
         }
       );
-      console.log("hahaa");
       dispatch(login(response.data.data));
-      console.log("lll");
       if (response.data.data.userLogin.roles[0] === "MANAGER")
         router.navigate("/departmentPage/department");
       else if (response.data.data.userLogin.roles[0] === "GUEST")
@@ -95,11 +93,6 @@ export default function loginPage() {
           Đăng Nhập
         </Text>
       </View>
-      {/* <TouchableOpacity style={styles.buttonContainer}>
-        <Text style={styles.btn} onPress={handleLoginQA}>
-          Đăng Nhập QAQC
-        </Text>
-      </TouchableOpacity> */}
       {status === "loading" && <Text>Loading...</Text>}
       {status === "failed" && <Text>Error: {error}</Text>}
     </SafeAreaView>
