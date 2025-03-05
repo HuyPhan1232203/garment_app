@@ -13,6 +13,7 @@ import { storeTask } from "@/slices/taskSlice";
 const Task = () => {
   const param = useLocalSearchParams();
   const [task, setTask] = useState([]);
+  const [pages, setpages] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const fetchTask = async () => {
     try {
@@ -20,6 +21,8 @@ const Task = () => {
         `https://api-xuongmay-dev.lighttail.com/api/taskproduct?pageIndex=${pageIndex}&pageSize=10&searchByDepartmentId=${param.id}`
       );
       setTask(res.data.data.items);
+      console.log(res.data.data.totalPages);
+      setpages(res.data.data.totalPages);
     } catch {
       console.error("fetch task error");
     }
@@ -32,6 +35,7 @@ const Task = () => {
   };
   const handleNext = () => {
     if (task.length === 0) return;
+    if (pageIndex == pages) return;
     setPageIndex(pageIndex + 1);
   };
   const dispatch = useDispatch();
@@ -103,6 +107,7 @@ const Task = () => {
           <NoData />
         )}
         <Paging
+          pages={pages}
           data={task}
           onNext={handleNext}
           onPrev={handlePrev}

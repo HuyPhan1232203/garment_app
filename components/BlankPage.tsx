@@ -20,6 +20,7 @@ type PageProps = {
 const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
   const [data, setData] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
+  const [pages, setpages] = useState(0);
   useEffect(() => {
     if (!api) return;
     const fetchData = async () => {
@@ -28,6 +29,7 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
           `${api}?pageIndex=${pageIndex}&pageSize=10`
         );
         setData(res.data.data.items);
+        setpages(res.data.data.totalPages);
       } catch (error) {
         console.error("Fetch error:", error);
       }
@@ -39,6 +41,7 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
   };
   const handleNext = () => {
     if (data.length === 0) return;
+    if (pageIndex == pages) return;
     setPageIndex(pageIndex + 1);
   };
   const handlePress = (name, id) => {
@@ -89,6 +92,7 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
           <NoData />
         )}
         <Paging
+          pages={pages}
           data={data}
           onPrev={handlePrev}
           onNext={handleNext}

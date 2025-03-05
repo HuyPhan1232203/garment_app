@@ -7,9 +7,10 @@ type PagingProps = {
   pageIndex: number;
   onPrev: () => void;
   onNext: () => void;
+  pages: number;
 };
 
-const Paging = ({ data, pageIndex, onPrev, onNext }: PagingProps) => {
+const Paging = ({ data, pageIndex, onPrev, onNext, pages }: PagingProps) => {
   return (
     <View
       style={{
@@ -28,11 +29,13 @@ const Paging = ({ data, pageIndex, onPrev, onNext }: PagingProps) => {
         </Text>
       </TouchableOpacity>
       <View>
-        <Text>Page {pageIndex}</Text>
+        <Text>
+          Page {pageIndex} of {pages}
+        </Text>
       </View>
       <TouchableOpacity
         style={
-          data.length === 0 ? styles.buttonDisabled : styles.buttonContainer
+          pageIndex == pages ? styles.buttonDisabled : styles.buttonContainer
         }
       >
         <Text style={styles.button} onPress={onNext}>

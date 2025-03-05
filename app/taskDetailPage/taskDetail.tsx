@@ -10,7 +10,6 @@ import { defaultStyles } from "@/styles/default";
 import axios from "axios";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { Header } from "@/components/Header";
-import BlankPage from "@/components/BlankPage";
 import Paging from "@/components/Paging";
 import NoData from "@/components/NoData";
 import { router } from "expo-router";
@@ -20,6 +19,7 @@ import { storeTaskDetail } from "@/slices/taskDetailSlice";
 const taskDetail = () => {
   const [data, setdata] = useState([]);
   const param = useLocalSearchParams();
+  const [pages, setpages] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const fetchData = async () => {
     try {
@@ -27,6 +27,7 @@ const taskDetail = () => {
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail?pageIndex=${pageIndex}&pageSize=10&searchByTaskProductId=${param.id}`
       );
       setdata(res.data.data.items);
+      setpages(res.data.data.totalItems);
     } catch {
       console.error("fetch error ");
     }
@@ -39,6 +40,7 @@ const taskDetail = () => {
   };
   const handleNext = () => {
     if (data.length === 0) return;
+    if (pageIndex == pages) return;
     setPageIndex(pageIndex + 1);
   };
   const dispatch = useDispatch();
@@ -89,6 +91,7 @@ const taskDetail = () => {
           <NoData />
         )}
         <Paging
+          pages={pages}
           data={data}
           onNext={handleNext}
           onPrev={handlePrev}
