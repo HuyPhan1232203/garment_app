@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { defaultStyles } from "@/styles/default";
 import Paging from "./Paging";
 import NoData from "./NoData";
+import Toast from "react-native-toast-message";
 type PageProps = {
   api?: string;
   headerTitle: string;
@@ -44,6 +45,7 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
     if (pageIndex == pages) return;
     setPageIndex(pageIndex + 1);
   };
+
   const handlePress = (name, id) => {
     router.push({
       pathname: nextPath,
