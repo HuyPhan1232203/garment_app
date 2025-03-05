@@ -4,11 +4,11 @@ import { login } from "@/slices/authSlice";
 import { defaultStyles } from "@/styles/default";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 export default function loginPage() {
   const router = useRouter();
@@ -18,6 +18,7 @@ export default function loginPage() {
 
   const handleLogin = async () => {
     try {
+      if (account === "" || password === "") return;
       const response = await axios.post(
         "https://api-xuongmay-dev.lighttail.com/api/users/authorize-user",
         {
@@ -32,7 +33,7 @@ export default function loginPage() {
         router.navigate("/QADepartmentPage/QADepartment");
     } catch (error) {
       const errorMessage =
-        error.response?.data?.data || "An error occurred during login";
+        error.response?.data?.data || "Tài khoản hoặc mật khẩu không đúng";
       Toast.show({
         type: "error",
         text1: errorMessage,
