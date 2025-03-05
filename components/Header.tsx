@@ -4,11 +4,19 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useDispatch } from "react-redux";
+import { logout } from "@/slices/authSlice";
 type textProps = {
   text: string;
   isChild?: boolean;
 };
+
 export const Header = ({ text, isChild }: textProps) => {
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logout());
+    router.navigate("..");
+  };
   return (
     <View
       style={{
@@ -40,7 +48,9 @@ export const Header = ({ text, isChild }: textProps) => {
       ) : (
         <Text style={defaultStyles.headerText}>{text}</Text>
       )}
-      <Ionicons name="exit-outline" size={24} color={colors.icon} />
+      <TouchableOpacity onPress={handleLogout}>
+        <Ionicons name="exit-outline" size={24} color={colors.icon} />
+      </TouchableOpacity>
     </View>
   );
 };

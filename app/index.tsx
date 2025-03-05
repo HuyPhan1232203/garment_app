@@ -15,18 +15,7 @@ export default function loginPage() {
   const dispatch = useDispatch();
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
-  const { user, status, error } = useSelector((state: any) => state.auth);
 
-  // const handleLoginQA = () => {
-  //   // dispatch(fetchUser({ account, password }));
-  //   router.navigate("/QADepartmentPage/QADepartment");
-  // };
-
-  useEffect(() => {
-    if (user) {
-      router.navigate("/departmentPage/department");
-    }
-  }, [user]);
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -93,8 +82,6 @@ export default function loginPage() {
           Đăng Nhập
         </Text>
       </View>
-      {status === "loading" && <Text>Loading...</Text>}
-      {status === "failed" && <Text>Error: {error}</Text>}
     </SafeAreaView>
   );
 }

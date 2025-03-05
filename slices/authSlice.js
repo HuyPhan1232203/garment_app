@@ -21,17 +21,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    user: null,
-    status: "idle",
-    error: null,
-  },
+  initialState: null,
   reducers: {
     login: (state, action) => {
       return (state = action.payload);
     },
-    logout: (state) => {
-      state.user = null;
+    logout: () => {
+      return null;
     },
   },
   // extraReducers: (builder) => {
