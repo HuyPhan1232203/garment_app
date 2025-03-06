@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { useSelector } from "react-redux";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { defaultStyles } from "@/styles/default";
 import { colors } from "@/constraints/token";
@@ -48,28 +48,10 @@ const confirm = () => {
     fetchFinished();
   }, []);
   const handleConfirm = async () => {
-    console.log({
-      code: `${codeTaskDetail}`,
-      name: `${nameTaskDetail}`,
-      quantity: inputValue,
-      dateStart: `${formatDateToString(dateStartTaskDetail)}`,
-      dateEnd: `${formatDateToString(dateEndTaskDetail)}`,
-      operationId: `${operationIdTaskDetail}`,
-      taskProductId: `${taskProductIdTaskDetail}`,
-    });
     console.log(idTaskDetail);
     try {
-      await axios.put(
-        `https://api-xuongmay-dev.lighttail.com/api/taskdetail/${idTaskDetail}`,
-        {
-          code: `${codeTaskDetail}`,
-          name: `${nameTaskDetail}`,
-          quantity: inputValue,
-          dateStart: `${formatDateToString(dateStartTaskDetail)}`,
-          dateEnd: `${formatDateToString(dateEndTaskDetail)}`,
-          operationId: `${operationIdTaskDetail}`,
-          taskProductId: `${taskProductIdTaskDetail}`,
-        }
+      await axios.patch(
+        `https://api-xuongmay-dev.lighttail.com/api/taskdetail/addquantity/${idTaskDetail}?quantity=${inputValue}`
       );
       setInputValue(0);
       Toast.show({
