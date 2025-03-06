@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { useSelector } from "react-redux";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { defaultStyles } from "@/styles/default";
 import { colors } from "@/constraints/token";
@@ -76,6 +76,7 @@ const confirm = () => {
         type: "success",
         text1: "Updated Successfully",
       });
+      fetchFinished();
     } catch (error) {
       Toast.show({
         type: "error",

@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -22,10 +23,12 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
   const [data, setData] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [pages, setpages] = useState(0);
+  const [loading, setloading] = useState(false);
   useEffect(() => {
     if (!api) return;
     const fetchData = async () => {
       try {
+        setloading(true);
         const res = await axios.get(
           `${api}?pageIndex=${pageIndex}&pageSize=10`
         );
@@ -33,6 +36,8 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
         setpages(res.data.data.totalPages);
       } catch (error) {
         console.error("Fetch error:", error);
+      } finally {
+        setloading(false);
       }
     };
     fetchData();
@@ -55,52 +60,64 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
   return (
     <View>
       <Header text={headerTitle} />
-      <View
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          height: "90.5%",
-        }}
-      >
-        {data.length !== 0 ? (
-          <FlatList
-            data={data}
-            key={data.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{
-                  ...defaultStyles.modal,
-                  paddingHorizontal: 80,
-                  paddingVertical: 20,
-                }}
-                onPress={() => handlePress(item?.name, item.id)}
-              >
-                <Text
+      {loading ? (
+        <View
+          style={{
+            height: "80%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : (
+        <View
+          style={{
+            flexDirection: "column",
+            alignItems: "center",
+            height: "90.5%",
+          }}
+        >
+          {data.length !== 0 ? (
+            <FlatList
+              data={data}
+              key={data.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
                   style={{
-                    color: "#000",
-                    fontSize: 32,
-                    fontWeight: 500,
+                    ...defaultStyles.modal,
+                    paddingHorizontal: 80,
+                    paddingVertical: 20,
                   }}
+                  onPress={() => handlePress(item?.name, item.id)}
                 >
-                  {item?.code} - {item?.name}
-                </Text>
-                <Text style={{ fontSize: 20 }}>
-                  Tổng SL: {item?.numOfStaff}
-                </Text>
-              </TouchableOpacity>
-            )}
+                  <Text
+                    style={{
+                      color: "#000",
+                      fontSize: 32,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {item?.code} - {item?.name}
+                  </Text>
+                  <Text style={{ fontSize: 20 }}>
+                    Tổng SL: {item?.numOfStaff}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <NoData />
+          )}
+          <Paging
+            pages={pages}
+            data={data}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            pageIndex={pageIndex}
           />
-        ) : (
-          <NoData />
-        )}
-        <Paging
-          pages={pages}
-          data={data}
-          onPrev={handlePrev}
-          onNext={handleNext}
-          pageIndex={pageIndex}
-        />
-      </View>
+        </View>
+      )}
     </View>
   );
 };

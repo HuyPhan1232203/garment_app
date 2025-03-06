@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -17,12 +18,14 @@ import { useDispatch } from "react-redux";
 import { storeTaskDetail } from "@/slices/taskDetailSlice";
 
 const taskDetail = () => {
+  const [loading, setloading] = useState(false);
   const [data, setdata] = useState([]);
   const param = useLocalSearchParams();
   const [pages, setpages] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const fetchData = async () => {
     try {
+      setloading(true);
       const res = await axios.get(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail?pageIndex=${pageIndex}&pageSize=10&searchByTaskProductId=${param.id}`
       );
@@ -30,6 +33,8 @@ const taskDetail = () => {
       setpages(res.data.data.totalItems);
     } catch {
       console.error("fetch error ");
+    } finally {
+      setloading(false);
     }
   };
   useEffect(() => {
@@ -52,52 +57,64 @@ const taskDetail = () => {
           Danh sách công đoạn
         </Text>
       </View>
-      <View style={{ height: "80%", alignItems: "center" }}>
-        {data.length !== 0 ? (
-          <FlatList
-            data={data}
-            key={data.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-                onPress={() => {
-                  dispatch(storeTaskDetail(item));
-                  router.push({
-                    pathname: "/confirmPage/confirm",
-                    params: { task: item?.code },
-                  });
-                }}
-              >
-                <View
+      {loading ? (
+        <View
+          style={{
+            height: "80%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : (
+        <View style={{ height: "80%", alignItems: "center" }}>
+          {data.length !== 0 ? (
+            <FlatList
+              data={data}
+              key={data.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
                   style={{
-                    ...defaultStyles.modal,
-                    paddingHorizontal: 20,
-                    paddingVertical: 20,
-                    width: 334,
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    dispatch(storeTaskDetail(item));
+                    router.push({
+                      pathname: "/confirmPage/confirm",
+                      params: { task: item?.code },
+                    });
                   }}
                 >
-                  <Text style={{ fontWeight: 500, fontSize: 36 }}>
-                    {item?.name}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
+                  <View
+                    style={{
+                      ...defaultStyles.modal,
+                      paddingHorizontal: 20,
+                      paddingVertical: 20,
+                      width: 334,
+                    }}
+                  >
+                    <Text style={{ fontWeight: 500, fontSize: 36 }}>
+                      {item?.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <NoData />
+          )}
+          <Paging
+            pages={pages}
+            data={data}
+            onNext={handleNext}
+            onPrev={handlePrev}
+            pageIndex={pageIndex}
           />
-        ) : (
-          <NoData />
-        )}
-        <Paging
-          pages={pages}
-          data={data}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          pageIndex={pageIndex}
-        />
-      </View>
+        </View>
+      )}
     </View>
   );
 };
