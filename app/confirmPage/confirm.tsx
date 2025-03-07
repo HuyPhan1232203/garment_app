@@ -9,6 +9,7 @@ import { colors } from "@/constraints/token";
 import Input from "@/components/Input";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
   const id = useSelector((store) => store.task.id);
@@ -18,7 +19,31 @@ const confirm = () => {
   const [inputValue, setInputValue] = useState(0);
   const idTaskDetail = useSelector((store) => store.taskDetail.id);
   const handleRefresh = () => {
-    setInputValue(0);
+    updateInputValue(0);
+  };
+  // Add these functions to store and retrieve the inputValue
+  const storeInputValue = async (value) => {
+    try {
+      // Create a storage key that's unique to this task
+      const storageKey = `inputValue_${idTaskDetail}`;
+      await AsyncStorage.setItem(storageKey, value.toString());
+      console.log("Input value stored successfully");
+    } catch (error) {
+      console.error("Error storing input value: ", error);
+    }
+  };
+
+  const loadInputValue = async () => {
+    try {
+      const storageKey = `inputValue_${idTaskDetail}`;
+      const value = await AsyncStorage.getItem(storageKey);
+      if (value !== null) {
+        setInputValue(Number(value));
+        console.log("Input value loaded:", value);
+      }
+    } catch (error) {
+      console.error("Error loading input value: ", error);
+    }
   };
   const [finished, setfinished] = useState(0);
   const fetchFinished = async () => {
@@ -33,7 +58,13 @@ const confirm = () => {
   };
   useEffect(() => {
     fetchFinished();
+    loadInputValue();
   }, []);
+  const updateInputValue = (value) => {
+    const newValue = Number(value);
+    setInputValue(newValue);
+    storeInputValue(newValue);
+  };
   const handleConfirm = async () => {
     try {
       await axios.patch(
@@ -103,7 +134,7 @@ const confirm = () => {
         <View>
           <Input
             name="Nhập số lượng"
-            onChangeText={setInputValue}
+            onChangeText={updateInputValue}
             value={inputValue}
             type="number"
           />
@@ -128,7 +159,7 @@ const confirm = () => {
             }}
             onPress={() => {
               if (inputValue > 0) {
-                setInputValue(Number(inputValue) - 1);
+                updateInputValue(Number(inputValue) - 1);
               }
             }}
           >
@@ -143,7 +174,7 @@ const confirm = () => {
               alignItems: "center",
               borderRadius: 10,
             }}
-            onPress={() => setInputValue(Number(inputValue) + 1)}
+            onPress={() => updateInputValue(Number(inputValue) + 1)}
           >
             <AntDesign name="plus" size={100} color={colors.icon} />
           </TouchableOpacity>
