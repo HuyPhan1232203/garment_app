@@ -11,7 +11,6 @@ import axios from "axios";
 import { Header } from "./Header";
 import { router } from "expo-router";
 import { defaultStyles } from "@/styles/default";
-import Paging from "./Paging";
 import NoData from "./NoData";
 import Toast from "react-native-toast-message";
 type PageProps = {
@@ -29,9 +28,7 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
     const fetchData = async () => {
       try {
         setloading(true);
-        const res = await axios.get(
-          `${api}?pageIndex=${pageIndex}&pageSize=10`
-        );
+        const res = await axios.get(`${api}?pageIndex=1&pageSize=100`);
         setData(res.data.data.items);
         setpages(res.data.data.totalPages);
       } catch (error) {
@@ -109,13 +106,6 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
           ) : (
             <NoData />
           )}
-          <Paging
-            pages={pages}
-            data={data}
-            onPrev={handlePrev}
-            onNext={handleNext}
-            pageIndex={pageIndex}
-          />
         </View>
       )}
     </View>

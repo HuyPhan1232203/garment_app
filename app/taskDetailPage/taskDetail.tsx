@@ -27,7 +27,7 @@ const taskDetail = () => {
     try {
       setloading(true);
       const res = await axios.get(
-        `https://api-xuongmay-dev.lighttail.com/api/taskdetail?pageIndex=${pageIndex}&pageSize=10&searchByTaskProductId=${param.id}`
+        `https://api-xuongmay-dev.lighttail.com/api/taskdetail?pageIndex=1&pageSize=100&searchByTaskProductId=${param.id}`
       );
       setdata(res.data.data.items);
       setpages(res.data.data.totalItems);
@@ -106,13 +106,6 @@ const taskDetail = () => {
           ) : (
             <NoData />
           )}
-          <Paging
-            pages={pages}
-            data={data}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            pageIndex={pageIndex}
-          />
         </View>
       )}
     </View>

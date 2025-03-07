@@ -9,7 +9,6 @@ import { colors } from "@/constraints/token";
 import Input from "@/components/Input";
 import axios from "axios";
 import Toast from "react-native-toast-message";
-import { formatDateToString } from "@/helper/validateDate";
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
   const id = useSelector((store) => store.task.id);
@@ -18,18 +17,6 @@ const confirm = () => {
   const target = useSelector((store) => store.task.target);
   const [inputValue, setInputValue] = useState(0);
   const idTaskDetail = useSelector((store) => store.taskDetail.id);
-  const codeTaskDetail = useSelector((store) => store.taskDetail.code);
-  const nameTaskDetail = useSelector((store) => store.taskDetail.name);
-  const dateStartTaskDetail = useSelector(
-    (store) => store.taskDetail.dateStart
-  );
-  const dateEndTaskDetail = useSelector((store) => store.taskDetail.dateEnd);
-  const operationIdTaskDetail = useSelector(
-    (store) => store.taskDetail.operationId
-  );
-  const taskProductIdTaskDetail = useSelector(
-    (store) => store.taskDetail.taskProductId
-  );
   const handleRefresh = () => {
     setInputValue(0);
   };
@@ -48,7 +35,6 @@ const confirm = () => {
     fetchFinished();
   }, []);
   const handleConfirm = async () => {
-    console.log(idTaskDetail);
     try {
       await axios.patch(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail/addquantity/${idTaskDetail}?quantity=${inputValue}`
