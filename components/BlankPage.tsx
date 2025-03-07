@@ -83,7 +83,6 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
                 <TouchableOpacity
                   style={{
                     ...defaultStyles.modal,
-                    paddingHorizontal: 80,
                     paddingVertical: 20,
                   }}
                   onPress={() => handlePress(item?.name, item.id)}
