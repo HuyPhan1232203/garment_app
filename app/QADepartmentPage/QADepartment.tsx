@@ -1,9 +1,19 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Dimensions // Thêm Dimensions
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { defaultStyles } from "@/styles/default";
 import { Header } from "@/components/Header";
 import { router } from "expo-router";
+
+// Lấy kích thước màn hình
+const { width, height } = Dimensions.get('window');
 
 const QADepartment = () => {
   const [data, setData] = useState<any[]>([]);
@@ -22,17 +32,17 @@ const QADepartment = () => {
     fetchData();
   }, []);
 
-  const handlePress = (id : string, name: string) => {
+  const handlePress = (id: string, name: string) => {
     router.push({
       pathname: "QA_Task/QATask",
       params: { 
         id: id,
         name: name,
       }
-    })
-  }
+    });
+  };
 
-  const RenderItem = ({ item }: { item: { code: string; name: string } }) => {
+  const RenderItem = ({ item }: { item: { id: string; code: string; name: string } }) => {
     return (
       <TouchableOpacity 
         style={styles.itemContainer}
@@ -46,7 +56,7 @@ const QADepartment = () => {
 
   return (
     <View style={defaultStyles.container}>
-      <Header text="QA/QC - Danh sách tổ" />
+      <Header text="QA/QC - Danh sách tổ" isChild={true} />
       <FlatList
         data={data}
         renderItem={RenderItem}
@@ -61,21 +71,21 @@ export default QADepartment;
 
 const styles = StyleSheet.create({
   listContainer: {
-    padding: 20,
+    padding: width * 0.05, // 5% chiều rộng thay cho 20
   },
   itemContainer: {
     justifyContent: 'center',
     backgroundColor: "#009DFF80",
     flexDirection: "row",
-    padding: 20,
-    marginVertical: 8,
-    borderRadius: 10,
-    gap: 10,
+    padding: width * 0.05, // 5% chiều rộng thay cho 20
+    marginVertical: height * 0.01, // 1% chiều cao thay cho 8
+    borderRadius: width * 0.025, // 2.5% chiều rộng thay cho 10
+    gap: width * 0.025, // 2.5% chiều rộng thay cho 10
   },
   itemText: {
     fontWeight: '500',
-        marginRight: 8,
-        fontSize: 24,
-        color: '#003366',
+    marginRight: width * 0.02, // 2% chiều rộng thay cho 8
+    fontSize: width * 0.06, // 6% chiều rộng thay cho 24
+    color: '#003366',
   },
 });
