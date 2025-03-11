@@ -4,11 +4,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import store from "../store/store";
 import Toast from "react-native-toast-message";
+import { StatusBar } from "react-native";
 
 export default function RootLayout() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
+        <StatusBar hidden></StatusBar>
         <GestureHandlerRootView>
           <RootNavigation />
         </GestureHandlerRootView>

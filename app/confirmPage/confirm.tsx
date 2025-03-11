@@ -140,6 +140,40 @@ const confirm = () => {
           />
         </View>
         {/*  */}
+        <View style={{ flexDirection: "row", gap: 10, marginTop: 30 }}>
+          <TouchableOpacity
+            onPress={() => {
+              setInputValue(5);
+            }}
+            style={styles.number}
+          >
+            <Text>5</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setInputValue(10);
+            }}
+            style={styles.number}
+          >
+            <Text>10</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setInputValue(15);
+            }}
+            style={styles.number}
+          >
+            <Text>15</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setInputValue(20);
+            }}
+            style={styles.number}
+          >
+            <Text>20</Text>
+          </TouchableOpacity>
+        </View>
         <View
           style={{
             flexDirection: "row",
@@ -219,6 +253,21 @@ const styles = StyleSheet.create({
     width: 131,
     justifyContent: "space-around",
     borderRadius: 10,
+  },
+  number: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 70,
+    height: 80,
+    backgroundColor: "#fff",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65, // Added for iOS
+    elevation: 7, // Added for Android
   },
 });
 
