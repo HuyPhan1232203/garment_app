@@ -1,4 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Dimensions,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { useSelector } from "react-redux";
@@ -11,6 +17,12 @@ import axios from "axios";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { formatTimeRange } from "@/helper/validateDate";
+
+// Get screen dimensions
+const { width } = Dimensions.get("window");
+const containerWidth = width * 0.9; // 90% of screen width
+const buttonWidth = containerWidth * 0.4; // 40% of container width
+
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
   const id = useSelector((store) => store.task.id);
@@ -109,7 +121,7 @@ const confirm = () => {
         </View>
 
         {/*  */}
-        <View style={{ width: "100%" }}>
+        <View style={{ width: containerWidth }}>
           <View style={styles.quantityContainer}>
             <View
               style={{
@@ -126,6 +138,7 @@ const confirm = () => {
                 {inputValue}
               </Text>
             </View>
+            <Text style={{ fontWeight: "500", fontSize: 16 }}>Khung giờ:</Text>
             <Text style={{ color: "red", fontWeight: 700, fontSize: 20 }}>
               {formatTimeRange(startDate, endDate)}
             </Text>
@@ -136,7 +149,7 @@ const confirm = () => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            width: 319,
+            width: containerWidth,
           }}
         >
           <TouchableOpacity style={styles.refresh} onPress={handleRefresh}>
@@ -153,7 +166,7 @@ const confirm = () => {
           </TouchableOpacity>
         </View>
         {/*  */}
-        <View>
+        <View style={{ width: containerWidth }}>
           <Input
             name=""
             onChangeText={updateInputValue}
@@ -162,7 +175,7 @@ const confirm = () => {
           />
         </View>
         {/*  */}
-        <View style={{ flexDirection: "row", gap: 10, marginTop: 30 }}>
+        <View style={styles.numbersContainer}>
           <TouchableOpacity
             onPress={() => {
               setInputValue(5);
@@ -196,23 +209,9 @@ const confirm = () => {
             <Text>20</Text>
           </TouchableOpacity>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            width: 319,
-            justifyContent: "space-between",
-            marginTop: 80,
-          }}
-        >
+        <View style={styles.controlButtons}>
           <TouchableOpacity
-            style={{
-              backgroundColor: colors.primary,
-              width: 130,
-              height: 105,
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 10,
-            }}
+            style={styles.minusButton}
             onPress={() => {
               if (inputValue > 0) {
                 updateInputValue(Number(inputValue) - 1);
@@ -222,14 +221,7 @@ const confirm = () => {
             <AntDesign name="minus" size={100} color={colors.icon} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={{
-              backgroundColor: colors.primary,
-              width: 130,
-              height: 105,
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 10,
-            }}
+            style={styles.plusButton}
             onPress={() => updateInputValue(Number(inputValue) + 1)}
           >
             <AntDesign name="plus" size={100} color={colors.icon} />
@@ -246,23 +238,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#D9D9D9",
-    width: 319,
+    width: containerWidth,
     height: 55,
     borderRadius: 10,
     paddingHorizontal: 20,
     justifyContent: "space-around",
   },
   quantityContainer: {
+    width: containerWidth,
     height: 96,
     ...defaultStyles.modal,
     alignItems: "center",
     justifyContent: "space-around",
+    marginBottom: 10,
   },
   refresh: {
     flexDirection: "row",
     backgroundColor: "#1C9D1F",
     padding: 10,
-    width: 131,
+    width: buttonWidth,
     justifyContent: "space-around",
     borderRadius: 10,
   },
@@ -270,14 +264,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#2589FF",
     padding: 10,
-    width: 131,
+    width: buttonWidth,
     justifyContent: "space-around",
     borderRadius: 10,
+  },
+  numbersContainer: {
+    flexDirection: "row",
+    marginTop: 30,
+    width: containerWidth,
+    justifyContent: "space-between",
   },
   number: {
     alignItems: "center",
     justifyContent: "center",
-    width: 70,
+    width: containerWidth / 4.5, // Slightly less than 1/4 to allow for gaps
     height: 80,
     backgroundColor: "#fff",
     shadowOffset: {
@@ -288,6 +288,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65, // Added for iOS
     elevation: 7, // Added for Android
+  },
+  controlButtons: {
+    flexDirection: "row",
+    width: containerWidth,
+    justifyContent: "space-between",
+    marginTop: 80,
+  },
+  minusButton: {
+    backgroundColor: colors.primary,
+    width: buttonWidth,
+    height: 105,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  plusButton: {
+    backgroundColor: colors.primary,
+    width: buttonWidth,
+    height: 105,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
   },
 });
 

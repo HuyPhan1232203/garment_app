@@ -29,7 +29,7 @@ export default function loginPage() {
       dispatch(login(response.data.data));
       if (response.data.data.userLogin.roles[0] === "WORKER")
         router.navigate("/departmentPage/department");
-      else if (response.data.data.userLogin.roles[0] === "GUEST")
+      else if (response.data.data.userLogin.roles[0] === "QAQC")
         router.navigate("/QADepartmentPage/QADepartment");
     } catch (error) {
       const errorMessage =
