@@ -37,6 +37,21 @@ export function formatDateToString(
 
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
+export const formatTimeRange = (dateStart: string, dateEnd: string): string => {
+  // Parse the ISO date strings
+  const startDate = new Date(dateStart);
+  const endDate = new Date(dateEnd);
+
+  // Format the hours and minutes with leading zeros if needed
+  const formatTime = (date: Date): string => {
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  // Return the formatted time range
+  return `${formatTime(startDate)} - ${formatTime(endDate)}`;
+};
 
 // Example usage (for testing)
 // try {

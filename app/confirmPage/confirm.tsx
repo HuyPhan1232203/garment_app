@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { useSelector } from "react-redux";
 import { useLocalSearchParams } from "expo-router";
@@ -10,6 +10,7 @@ import Input from "@/components/Input";
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { formatTimeRange } from "@/helper/validateDate";
 const confirm = () => {
   const name = useSelector((store) => store.task.name);
   const id = useSelector((store) => store.task.id);
@@ -21,6 +22,9 @@ const confirm = () => {
   const handleRefresh = () => {
     updateInputValue(0);
   };
+  const startDate = useSelector((store) => store.taskDetail.dateStart);
+  const endDate = useSelector((store) => store.taskDetail.dateEnd);
+  console.log(startDate);
   // Add these functions to store and retrieve the inputValue
   const storeInputValue = async (value) => {
     try {
@@ -70,17 +74,21 @@ const confirm = () => {
       await axios.patch(
         `https://api-xuongmay-dev.lighttail.com/api/taskdetail/addquantity/${idTaskDetail}?quantity=${inputValue}`
       );
-      setInputValue(0);
-      Toast.show({
-        type: "success",
-        text1: "Updated Successfully",
-      });
+      updateInputValue(0);
+      alert("Xác nhận thành công");
+      // Toast.show({
+      //   type: "success",
+      //   text1: "Updated Successfully",
+      // });
       fetchFinished();
     } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "updated error",
-      });
+      alert(
+        `Đã xảy ra lỗi ${error.message} trong quá trình kiểm trả. VUi lòng thử lại`
+      );
+      // Toast.show({
+      //   type: "error",
+      //   text1: "updated error",
+      // });
     }
   };
   return (
@@ -101,12 +109,26 @@ const confirm = () => {
         </View>
 
         {/*  */}
-        <View>
+        <View style={{ width: "100%" }}>
           <View style={styles.quantityContainer}>
-            <Text style={{ ...defaultStyles.text, fontWeight: 500 }}>
-              Số lượng:
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "100%",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ ...defaultStyles.text, fontWeight: 500 }}>
+                Số lượng:
+              </Text>
+              <Text style={{ fontSize: 36, fontWeight: 500 }}>
+                {inputValue}
+              </Text>
+            </View>
+            <Text style={{ color: "red", fontWeight: 700, fontSize: 20 }}>
+              {formatTimeRange(startDate, endDate)}
             </Text>
-            <Text style={{ fontSize: 36, fontWeight: 500 }}>{inputValue}</Text>
           </View>
         </View>
         {/*  */}
@@ -133,9 +155,9 @@ const confirm = () => {
         {/*  */}
         <View>
           <Input
-            name="Nhập số lượng"
+            name=""
             onChangeText={updateInputValue}
-            value={inputValue}
+            value={inputValue.toString()}
             type="number"
           />
         </View>
@@ -231,10 +253,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   quantityContainer: {
-    width: 319,
     height: 96,
     ...defaultStyles.modal,
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
   },
