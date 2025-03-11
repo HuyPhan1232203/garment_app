@@ -121,7 +121,7 @@ const confirm = () => {
         </View>
 
         {/*  */}
-        <View style={{ width: containerWidth }}>
+        <View style={{ width: containerWidth / 0.9 }}>
           <View style={styles.quantityContainer}>
             <View
               style={{
@@ -178,7 +178,7 @@ const confirm = () => {
         <View style={styles.numbersContainer}>
           <TouchableOpacity
             onPress={() => {
-              setInputValue(5);
+              updateInputValue(5);
             }}
             style={styles.number}
           >
@@ -186,7 +186,7 @@ const confirm = () => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              setInputValue(10);
+              updateInputValue(10);
             }}
             style={styles.number}
           >
@@ -194,7 +194,7 @@ const confirm = () => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              setInputValue(15);
+              updateInputValue(15);
             }}
             style={styles.number}
           >
@@ -202,7 +202,7 @@ const confirm = () => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              setInputValue(20);
+              updateInputValue(20);
             }}
             style={styles.number}
           >
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   quantityContainer: {
-    width: containerWidth,
+    width: containerWidth / 0.9,
     height: 96,
     ...defaultStyles.modal,
     alignItems: "center",
