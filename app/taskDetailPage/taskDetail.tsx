@@ -11,7 +11,6 @@ import { defaultStyles } from "@/styles/default";
 import axios from "axios";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { Header } from "@/components/Header";
-import Paging from "@/components/Paging";
 import NoData from "@/components/NoData";
 import { router } from "expo-router";
 import { useDispatch } from "react-redux";

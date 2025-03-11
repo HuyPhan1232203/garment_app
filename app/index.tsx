@@ -88,9 +88,7 @@ export default function loginPage() {
 }
 
 const styles = StyleSheet.create({
-  logoImgContainer: {
-    height: "30%",
-  },
+  logoImgContainer: {},
   logoImg: {
     width: 304,
     height: 104,

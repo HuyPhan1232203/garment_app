@@ -12,7 +12,6 @@ import { Header } from "./Header";
 import { router } from "expo-router";
 import { defaultStyles } from "@/styles/default";
 import NoData from "./NoData";
-import Toast from "react-native-toast-message";
 type PageProps = {
   api?: string;
   headerTitle: string;
@@ -96,9 +95,9 @@ const BlankPage = ({ api, headerTitle, nextPath }: PageProps) => {
                   >
                     {item?.code} - {item?.name}
                   </Text>
-                  <Text style={{ fontSize: 20 }}>
+                  {/* <Text style={{ fontSize: 20 }}>
                     Tổng SL: {item?.numOfStaff}
-                  </Text>
+                  </Text> */}
                 </TouchableOpacity>
               )}
             />

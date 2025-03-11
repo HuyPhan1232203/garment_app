@@ -82,8 +82,8 @@ const Task = () => {
                 <TouchableOpacity
                   style={{
                     ...defaultStyles.modal,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
+                    paddingHorizontal: 30,
+                    paddingVertical: 20,
                   }}
                   onPress={() => {
                     dispatch(storeTask(item));
@@ -98,7 +98,7 @@ const Task = () => {
                   }}
                 >
                   <Text
-                    style={{ fontSize: 20, fontWeight: 500, paddingBottom: 10 }}
+                    style={{ fontSize: 36, fontWeight: 500, paddingBottom: 10 }}
                   >
                     {item?.code} - {item?.name}
                   </Text>
@@ -110,19 +110,11 @@ const Task = () => {
                   >
                     <View style={{ paddingHorizontal: 30 }}>
                       <Text style={{ fontSize: 16, paddingBottom: 5 }}>
-                        CC: {item?.cc}
-                      </Text>
-                      <Text style={{ fontSize: 16, paddingBottom: 5 }}>
-                        Model: {item?.model}
-                      </Text>
-                    </View>
-                    <View style={{ paddingHorizontal: 30 }}>
-                      <Text style={{ fontSize: 16, paddingBottom: 5 }}>
                         Mục tiêu: {item?.target}
                       </Text>
-                      <Text style={{ fontSize: 16, paddingBottom: 5 }}>
+                      {/* <Text style={{ fontSize: 16, paddingBottom: 5 }}>
                         Hoàn thành: {item?.done}
-                      </Text>
+                      </Text> */}
                     </View>
                   </View>
                 </TouchableOpacity>
